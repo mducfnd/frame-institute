@@ -264,7 +264,7 @@ export default function ContentSection() {
         )}
       </div>
 
-      {/* Mobile text overlay — sits above the video */}
+      {/* Mobile text overlay — fixed-height block anchors counter+word at consistent Y */}
       {isMobile && (
         <div
           style={{
@@ -273,13 +273,28 @@ export default function ContentSection() {
             left: 0,
             right: 0,
             zIndex: 10,
-            padding: "0 1.5rem 4.5rem",
+            height: "46vh",          // fixed: top of block always at 54vh from top
+            padding: "0.75rem 1.5rem 0",
             display: "flex",
-            flexDirection: "column-reverse",
+            flexDirection: "column",
+            gap: "0.4rem",
             pointerEvents: "none",
+            overflow: "hidden",
           }}
         >
-          {/* Active word — DOM-first so column-reverse pins it at bottom */}
+          {/* Counter — always appears at top of fixed block → same Y every word */}
+          <div style={{
+            fontFamily: FONT_FAMILY,
+            fontSize: "14px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.55)",
+            flexShrink: 0,
+          }}>
+            {String(displayIndex + 1).padStart(2, "0")} / 06
+          </div>
+
+          {/* Word — immediately below counter, same position every time */}
           <div style={{
             fontFamily: FONT_FAMILY,
             fontWeight: 300,
@@ -287,25 +302,13 @@ export default function ContentSection() {
             letterSpacing: "-0.01em",
             color: "#ffffff",
             lineHeight: 0.9,
-            marginBottom: "0",
+            flexShrink: 0,
             transition: "opacity 0.3s",
           }}>
             {WORDS[displayIndex]}
           </div>
 
-          {/* Word counter */}
-          <div style={{
-            fontFamily: FONT_FAMILY,
-            fontSize: "14px",
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.55)",
-            marginBottom: "0.5rem",
-          }}>
-            {String(displayIndex + 1).padStart(2, "0")} / 06
-          </div>
-
-          {/* Description — grows upward, away from the word */}
+          {/* Description — fills remaining space, clips if too long */}
           <div style={{
             fontFamily: FONT_FAMILY,
             fontWeight: 300,
@@ -313,7 +316,10 @@ export default function ContentSection() {
             lineHeight: 1.55,
             color: "rgba(255,255,255,0.85)",
             maxWidth: "88%",
+            flex: 1,
+            overflow: "hidden",
             transition: "opacity 0.3s",
+            paddingBottom: "0.5rem",
           }}>
             {DESCRIPTIONS[WORDS[displayIndex]]}
           </div>
