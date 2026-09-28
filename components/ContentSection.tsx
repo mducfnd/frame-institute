@@ -98,7 +98,7 @@ export default function ContentSection() {
       }
 
       if (scrollY > ZOOM_START) {
-        const zProgress = Math.min(1, (scrollY - ZOOM_START) / 500);
+        const zProgress = Math.min(1, (scrollY - ZOOM_START) / 900);
         setZoomScale(1 + zProgress * 2.5);
       } else {
         setZoomScale(1);
@@ -273,12 +273,26 @@ export default function ContentSection() {
             left: 0,
             right: 0,
             zIndex: 10,
-            padding: "0 1.5rem 3.5rem",
+            padding: "0 1.5rem 4.5rem",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "column-reverse",
             pointerEvents: "none",
           }}
         >
+          {/* Active word — DOM-first so column-reverse pins it at bottom */}
+          <div style={{
+            fontFamily: FONT_FAMILY,
+            fontWeight: 300,
+            fontSize: "clamp(52px, 14vw, 76px)",
+            letterSpacing: "-0.01em",
+            color: "#ffffff",
+            lineHeight: 0.9,
+            marginBottom: "0",
+            transition: "opacity 0.3s",
+          }}>
+            {WORDS[displayIndex]}
+          </div>
+
           {/* Word counter */}
           <div style={{
             fontFamily: FONT_FAMILY,
@@ -291,25 +305,11 @@ export default function ContentSection() {
             {String(displayIndex + 1).padStart(2, "0")} / 06
           </div>
 
-          {/* Active word */}
+          {/* Description — grows upward, away from the word */}
           <div style={{
             fontFamily: FONT_FAMILY,
             fontWeight: 300,
-            fontSize: "clamp(52px, 14vw, 76px)",
-            letterSpacing: "-0.01em",
-            color: "#ffffff",
-            lineHeight: 0.9,
-            marginBottom: "1rem",
-            transition: "opacity 0.3s",
-          }}>
-            {WORDS[displayIndex]}
-          </div>
-
-          {/* Description */}
-          <div style={{
-            fontFamily: FONT_FAMILY,
-            fontWeight: 300,
-            fontSize: "16px",
+            fontSize: "20px",
             lineHeight: 1.55,
             color: "rgba(255,255,255,0.85)",
             maxWidth: "88%",
