@@ -22,7 +22,7 @@ export default function Hero() {
     const subtitle        = subtitleRef.current;
     const arrow           = arrowRef.current;
 
-    maskedVideo.play().catch(() => {});
+   maskedVideo?.play().catch(() => {});
 
 
     const tl = gsap.timeline({ delay: 0.1 });
