@@ -23,7 +23,6 @@ export default function Hero() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Sequence: FRAME logo → background video + masked video + UI
   useEffect(() => {
     const logoEl          = logoRef.current;
     const video           = videoRef.current;
@@ -32,23 +31,21 @@ export default function Hero() {
     const subtitle        = subtitleRef.current;
     const arrow           = arrowRef.current;
 
-   maskedVideo?.play().catch(() => {});
-
+    maskedVideo?.play().catch(() => {});
 
     const tl = gsap.timeline({ delay: 0.1 });
     tl.to(logoEl, { autoAlpha: 1, duration: 1.1, ease: "power2.out" });
     tl.add(() => {
       video?.play().catch(() => {});
-      gsap.to(video,          { autoAlpha: 1, duration: 0.5, ease: "power1.inOut" });
+      gsap.to(video,           { autoAlpha: 1, duration: 0.5, ease: "power1.inOut" });
       gsap.to(maskedVideoWrap, { autoAlpha: 0.18, duration: 1.1, ease: "power2.inOut" });
-      gsap.to(subtitle,       { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
-      gsap.to(arrow,          { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
+      gsap.to(subtitle,        { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
+      gsap.to(arrow,           { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
     }, "+=0.25");
 
     return () => { tl.kill(); };
   }, []);
 
-  // Scroll: zoom both video layers, fade logo + masked overlay + UI, fade section out
   useEffect(() => {
     const section         = sectionRef.current;
     const videoWrap       = videoWrapRef.current;
@@ -73,7 +70,7 @@ export default function Hero() {
       arrow.style.opacity             = String(textAlpha);
 
       const heroAlpha = Math.max(0, 1 - Math.max(0, (p - 0.60) / 0.40));
-      section.style.opacity = String(heroAlpha);
+      section.style.opacity       = String(heroAlpha);
       section.style.pointerEvents = heroAlpha < 0.05 ? "none" : "auto";
     };
 
@@ -87,15 +84,10 @@ export default function Hero() {
       ref={sectionRef}
       style={{ position: "absolute", inset: 0, zIndex: 10, overflow: "hidden", background: "#d4dadc" }}
     >
-      {/* ── Layer 1: Background video ──────────────────────────────────── */}
+      {/* ── Background video ── */}
       <div
         ref={videoWrapRef}
-        style={{
-          position: "absolute", inset: 0,
-          background: "#d4dadc",
-          transformOrigin: "center center",
-          willChange: "transform",
-        }}
+        style={{ position: "absolute", inset: 0, background: "#d4dadc", transformOrigin: "center center", willChange: "transform" }}
       >
         <video
           ref={videoRef}
@@ -106,30 +98,18 @@ export default function Hero() {
         </video>
       </div>
 
-      {/* ── Light overlay to brighten the background video ── */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: "rgba(255,255,255,0.25)",
-        zIndex: 1,
-        pointerEvents: "none",
-      }} />
+      <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.25)", zIndex: 1, pointerEvents: "none" }} />
 
-      {/* ── Layer 2: Masked video ── */}
+      {/* ── Masked video ── */}
       <div
         ref={maskedVideoWrapRef}
         style={{
           position: "absolute", inset: 0, zIndex: 11,
-          WebkitMaskImage: "url(/assets/logo4.png)",
-          maskImage: "url(/assets/logo4.png)",
-          WebkitMaskSize: "calc(100% - 6vw) auto",
-          maskSize: "calc(100% - 6vw) auto",
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          WebkitMaskPosition: "center center",
-          maskPosition: "center center",
-          transformOrigin: "center center",
-          willChange: "transform",
-          pointerEvents: "none",
+          WebkitMaskImage: "url(/assets/logo4.png)", maskImage: "url(/assets/logo4.png)",
+          WebkitMaskSize: "calc(100% - 6vw) auto", maskSize: "calc(100% - 6vw) auto",
+          WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center center", maskPosition: "center center",
+          transformOrigin: "center center", willChange: "transform", pointerEvents: "none",
         }}
       >
         <video
@@ -141,16 +121,12 @@ export default function Hero() {
         </video>
       </div>
 
-      {/* ── Top bar: subtitle centered ─────────────────────────────────── */}
+      {/* ── Subtitle ── */}
       <div
         ref={subtitleRef}
         style={{
-          position: "absolute",
-          top: 0, left: 0, right: 0,
-          zIndex: 20,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          position: "absolute", top: 0, left: 0, right: 0, zIndex: 20,
+          display: "flex", alignItems: "center", justifyContent: "center",
           padding: isMobile ? "5rem 2rem" : "1.75rem 2rem",
           pointerEvents: "none",
         }}
@@ -158,7 +134,7 @@ export default function Hero() {
         <div style={{
           fontFamily: "'nitti-grotesk-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
           fontWeight: 500,
-          fontSize: "clamp(17px, 1.775vw, 25px)",
+          fontSize: isMobile ? "20px" : "clamp(17px, 1.775vw, 25px)",
           letterSpacing: "0.06em",
           textTransform: "uppercase",
           color: "#000000",
@@ -169,51 +145,25 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── FRAME wordmark — vertically centered ──────────────────────── */}
-      <div style={{
-        position: "relative", zIndex: 10,
-        width: "100%", height: "100%",
-        display: "flex", alignItems: "center",
-        padding: "0 3vw",
-        pointerEvents: "none",
-      }}>
+      {/* ── FRAME wordmark ── */}
+      <div style={{ position: "relative", zIndex: 10, width: "100%", height: "100%", display: "flex", alignItems: "center", padding: "0 3vw", pointerEvents: "none" }}>
         <div style={{ width: "100%" }}>
-          <img
-            ref={logoRef}
-            src="/assets/logo4.png"
-            alt="FRAME"
-            style={{ display: "block", width: "100%", height: "auto", filter: "brightness(0)" }}
-          />
+          <img ref={logoRef} src="/assets/logo4.png" alt="FRAME" style={{ display: "block", width: "100%", height: "auto", filter: "brightness(0)" }} />
         </div>
       </div>
 
-      {/* ── Down chevron — bottom center ──────────────────────────────── */}
+      {/* ── Down chevron ── */}
       <div
         ref={arrowRef}
-        style={{
-          position: "absolute",
-          bottom: "2.25rem",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 20,
-          pointerEvents: "none",
-        }}
+        style={{ position: "absolute", bottom: "2.25rem", left: "50%", transform: "translateX(-50%)", zIndex: 20, pointerEvents: "none" }}
       >
         <svg width="28" height="17" viewBox="0 0 28 17" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M1 1L14 15.5L27 1" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
 
-      {/* ── White fade overlay — transitions to ContentSection ────────── */}
-      <div
-        style={{
-          position: "absolute", inset: 0,
-          background: "#ffffff",
-          zIndex: 30,
-          opacity: 0,
-          pointerEvents: "none",
-        }}
-      />
+      {/* ── White fade overlay ── */}
+      <div style={{ position: "absolute", inset: 0, background: "#ffffff", zIndex: 30, opacity: 0, pointerEvents: "none" }} />
     </section>
   );
 }
