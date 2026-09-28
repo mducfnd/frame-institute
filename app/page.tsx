@@ -15,7 +15,7 @@ export default function Home() {
      *    700px  → Footer slides up from bottom (6400–7100)
      *   1700px  → Footer fully visible, hover to explore (7100–8800)
      */
-    <div style={{ height: "calc(100vh + 11200px)" }}>
+    <div style={{ height: "calc(100vh + 12000px)" }}>
       <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
         <FooterSection />
         <ThirdSection />

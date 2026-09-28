@@ -20,7 +20,7 @@ const VIDEO_TIMESTAMPS = [0, 3, 6, 9, 11, 14, 17];
 
 const ACCORDION_START = 1100;
 const SEGMENT_SIZE   = 800;
-const ZOOM_START     = 5900;   // must match ThirdSection
+const ZOOM_START     = 6700;   // must match ThirdSection (800px dwell after last word)
 
 export default function ContentSection() {
   const videoRef       = useRef<HTMLVideoElement>(null);
@@ -147,6 +147,18 @@ export default function ContentSection() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+
+  // iOS: trigger video buffering on first touch so scrubbing works immediately
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const unlock = () => {
+      v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(() => {});
+    };
+    window.addEventListener("touchstart", unlock, { once: true, passive: true });
+    return () => window.removeEventListener("touchstart", unlock);
   }, []);
 
   const handleWordClick = (i: number) => {

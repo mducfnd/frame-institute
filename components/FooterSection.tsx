@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 const FONT = "'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 const FONT_LIGHT = "'nitti-grotesk-light', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
-const RISE_START = 7000;
-const RISE_END   = 7700;
+const RISE_START = 9600;
+const RISE_END   = 10300;
 
 const LINE1 = "DISCOVER";
 const LINE2 = "YOUR FRAME";

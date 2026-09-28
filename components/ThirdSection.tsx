@@ -2,8 +2,8 @@
 import { useRef, useEffect, useState } from "react";
 
 const FONT_FAMILY    = "'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif";
-const ZOOM_START     = 5900;
-const ZOOM_END       = 6400;
+const ZOOM_START     = 6700;
+const ZOOM_END       = 7200;
 const VIDEO_DURATION = 1.87;
 // YOU darkening: relative to when text first appears, not absolute scroll
 // 400px grace → gray, then 600px transition → black
