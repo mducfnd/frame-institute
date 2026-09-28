@@ -28,7 +28,7 @@ export default function Hero() {
     const tl = gsap.timeline({ delay: 0.1 });
     tl.to(logoEl, { autoAlpha: 1, duration: 1.1, ease: "power2.out" });
     tl.add(() => {
-      video.play().catch(() => {});
+      video?.play().catch(() => {});
       gsap.to(video,          { autoAlpha: 1, duration: 0.5, ease: "power1.inOut" });
       gsap.to(maskedVideoWrap, { autoAlpha: 0.18, duration: 1.1, ease: "power2.inOut" });
       gsap.to(subtitle,       { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
