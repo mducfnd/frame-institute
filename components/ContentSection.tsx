@@ -16,12 +16,11 @@ const DESCRIPTIONS: Record<string, string> = {
   DEVELOP:  "FRAME evolves with the individuals and organizations it serves, becoming increasingly valuable as circumstances shift, new decisions emerge, and relationships change. Designed to integrate with generative AI, FRAME is an adaptive system that extends beyond the limits of a fixed model.",
 };
 
-// Video timestamps (seconds) at each word boundary: [before DEFINE, after DEFINE, after DECODE, ...]
 const VIDEO_TIMESTAMPS = [0, 3, 6, 9, 11, 14, 17];
 
 const ACCORDION_START = 1100;
 const SEGMENT_SIZE   = 500;
-const ZOOM_START     = 4100;   // must match ThirdSection
+const ZOOM_START     = 4100;
 
 export default function ContentSection() {
   const videoRef       = useRef<HTMLVideoElement>(null);
@@ -30,9 +29,16 @@ export default function ContentSection() {
   const [scrollIndex, setScrollIndex] = useState(-1);
   const [manualIndex, setManualIndex] = useState<number | null>(null);
   const [zoomScale, setZoomScale]   = useState(1);
+  const [isMobile, setIsMobile]     = useState(false);
 
-  // The displayed active index: manual click overrides scroll; scroll clears the manual pin
   const activeIndex = manualIndex !== null ? manualIndex : scrollIndex;
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -86,7 +92,6 @@ export default function ContentSection() {
         playSegment(newIndex);
       }
 
-      // Zoom into white when accordion finishes
       if (scrollY > ZOOM_START) {
         const zProgress = Math.min(1, (scrollY - ZOOM_START) / 500);
         setZoomScale(1 + zProgress * 2.5);
@@ -106,7 +111,6 @@ export default function ContentSection() {
     };
   }, []);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
@@ -148,83 +152,77 @@ export default function ContentSection() {
         transformOrigin: "center 60%",
       }}
     >
-      <style suppressHydrationWarning>{`
-        /* ── Mobile: full-bleed video with word overlay at bottom ── */
-        @media (max-width: 767px) {
-          .cs-left  { display: none !important; }
-          .cs-right {
-            width: 100% !important;
-            position: absolute !important;
-            inset: 0 !important;
-          }
-          .cs-mobile-overlay { display: flex !important; }
-          .cs-video-dark { display: block !important; }
-        }
-      `}</style>
-
-      {/* ── Left half — accordion (desktop only) ─────────────────────── */}
-      <div
-        className="cs-left"
-        style={{
-          width: "50%",
-          position: "relative",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          padding: "16vh 4vw 4vh 4vw",
-          overflow: "hidden",
-        }}
-      >
-        <div>
-          {WORDS.map((word, i) => (
-            <div key={word}>
-              <div
-                onClick={() => handleWordClick(i)}
-                style={{
-                  fontFamily: FONT_FAMILY,
-                  fontWeight: FONT_WEIGHT,
-                  fontSize: "clamp(44px, 5.5vw, 86px)",
-                  lineHeight: 0.9,
-                  color: activeIndex === i ? "#1a1a1a" : "#c8c8c8",
-                  letterSpacing: "-0.01em",
-                  userSelect: "none",
-                  transition: "color 0.35s ease",
-                  cursor: "pointer",
-                }}
-              >
-                {word}
-              </div>
-
-              <div
-                style={{
-                  maxHeight: activeIndex === i ? "300px" : "0px",
-                  overflow: "hidden",
-                  transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-                }}
-              >
-                <p
+      {/* Desktop accordion — hidden on mobile */}
+      {!isMobile && (
+        <div
+          style={{
+            width: "50%",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            padding: "16vh 4vw 4vh 4vw",
+            overflow: "hidden",
+          }}
+        >
+          <div>
+            {WORDS.map((word, i) => (
+              <div key={word}>
+                <div
+                  onClick={() => handleWordClick(i)}
                   style={{
                     fontFamily: FONT_FAMILY,
                     fontWeight: FONT_WEIGHT,
-                    fontSize: "clamp(17px, 1.55vw, 25px)",
-                    lineHeight: 1.5,
-                    color: "#1a1a1a",
-                    margin: "0.7em 0 0.5em 0",
-                    paddingRight: "1vw",
-                    opacity: activeIndex === i ? 1 : 0,
-                    transition: "opacity 0.35s ease 0.1s",
+                    fontSize: "clamp(44px, 5.5vw, 86px)",
+                    lineHeight: 0.9,
+                    color: activeIndex === i ? "#1a1a1a" : "#c8c8c8",
+                    letterSpacing: "-0.01em",
+                    userSelect: "none",
+                    transition: "color 0.35s ease",
+                    cursor: "pointer",
                   }}
                 >
-                  {DESCRIPTIONS[word]}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+                  {word}
+                </div>
 
-      {/* ── Right half — video ──────────────────────────────────────────── */}
-      <div className="cs-right" style={{ width: "50%", position: "relative", overflow: "hidden" }}>
+                <div
+                  style={{
+                    maxHeight: activeIndex === i ? "300px" : "0px",
+                    overflow: "hidden",
+                    transition: "max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontFamily: FONT_FAMILY,
+                      fontWeight: FONT_WEIGHT,
+                      fontSize: "clamp(17px, 1.55vw, 25px)",
+                      lineHeight: 1.5,
+                      color: "#1a1a1a",
+                      margin: "0.7em 0 0.5em 0",
+                      paddingRight: "1vw",
+                      opacity: activeIndex === i ? 1 : 0,
+                      transition: "opacity 0.35s ease 0.1s",
+                    }}
+                  >
+                    {DESCRIPTIONS[word]}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Video panel — full screen on mobile, right half on desktop */}
+      <div
+        style={{
+          width: isMobile ? "100%" : "50%",
+          position: isMobile ? "absolute" : "relative",
+          inset: isMobile ? 0 : undefined,
+          overflow: "hidden",
+        }}
+      >
         <video
           ref={videoRef}
           muted
@@ -241,99 +239,96 @@ export default function ContentSection() {
           <source src="/assets/section2.mp4" type="video/mp4" />
         </video>
 
-        {/* Dark gradient overlay — mobile only, improves text legibility */}
+        {/* Dark gradient overlay — mobile only */}
+        {isMobile && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.75) 100%)",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+      </div>
+
+      {/* Mobile word overlay at bottom */}
+      {isMobile && (
         <div
-          className="cs-video-dark"
           style={{
-            display: "none",
             position: "absolute",
-            inset: 0,
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.75) 100%)",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+            padding: "0 1.5rem 2.5rem",
+            display: "flex",
+            flexDirection: "column",
             pointerEvents: "none",
           }}
-        />
-      </div>
+        >
+          <div style={{
+            fontFamily: FONT_FAMILY,
+            fontSize: "11px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.5)",
+            marginBottom: "0.5rem",
+          }}>
+            {String(displayIndex + 1).padStart(2, "0")} / 06
+          </div>
 
-      {/* ── Mobile word overlay — bottom of screen ──────────────────────── */}
-      <div
-        className="cs-mobile-overlay"
-        style={{
-          display: "none", // shown via CSS on mobile
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          padding: "0 1.5rem 2.5rem",
-          flexDirection: "column",
-          pointerEvents: "none",
-        }}
-      >
-        {/* Word counter */}
-        <div style={{
-          fontFamily: FONT_FAMILY,
-          fontSize: "11px",
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,0.5)",
-          marginBottom: "0.5rem",
-        }}>
-          {String(displayIndex + 1).padStart(2, "0")} / 06
-        </div>
+          <div style={{
+            fontFamily: FONT_FAMILY,
+            fontWeight: 300,
+            fontSize: "clamp(48px, 14vw, 72px)",
+            letterSpacing: "-0.01em",
+            textTransform: "uppercase",
+            color: "#ffffff",
+            lineHeight: 0.9,
+            marginBottom: "1rem",
+            transition: "opacity 0.3s",
+          }}>
+            {WORDS[displayIndex]}
+          </div>
 
-        {/* Active word */}
-        <div style={{
-          fontFamily: FONT_FAMILY,
-          fontWeight: 300,
-          fontSize: "clamp(48px, 14vw, 72px)",
-          letterSpacing: "-0.01em",
-          textTransform: "uppercase",
-          color: "#ffffff",
-          lineHeight: 0.9,
-          marginBottom: "1rem",
-          transition: "opacity 0.3s",
-        }}>
-          {WORDS[displayIndex]}
-        </div>
+          <div style={{
+            fontFamily: FONT_FAMILY,
+            fontWeight: 300,
+            fontSize: "13px",
+            lineHeight: 1.6,
+            color: "rgba(255,255,255,0.82)",
+            maxWidth: "340px",
+            transition: "opacity 0.3s",
+          }}>
+            {DESCRIPTIONS[WORDS[displayIndex]]}
+          </div>
 
-        {/* Description */}
-        <div style={{
-          fontFamily: FONT_FAMILY,
-          fontWeight: 300,
-          fontSize: "13px",
-          lineHeight: 1.6,
-          color: "rgba(255,255,255,0.82)",
-          maxWidth: "340px",
-          transition: "opacity 0.3s",
-        }}>
-          {DESCRIPTIONS[WORDS[displayIndex]]}
+          <div style={{
+            position: "absolute",
+            right: "1.25rem",
+            top: "50%",
+            transform: "translateY(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "6px",
+          }}>
+            {WORDS.map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: "5px",
+                  height: "5px",
+                  borderRadius: "50%",
+                  background: i === displayIndex ? "#ffffff" : "rgba(255,255,255,0.3)",
+                  transform: i === displayIndex ? "scale(1.4)" : "scale(1)",
+                  transition: "all 0.2s",
+                }}
+              />
+            ))}
+          </div>
         </div>
-
-        {/* Dot navigation */}
-        <div style={{
-          position: "absolute",
-          right: "1.25rem",
-          top: "50%",
-          transform: "translateY(-50%)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "6px",
-        }}>
-          {WORDS.map((_, i) => (
-            <div
-              key={i}
-              style={{
-                width: "5px",
-                height: "5px",
-                borderRadius: "50%",
-                background: i === displayIndex ? "#ffffff" : "rgba(255,255,255,0.3)",
-                transform: i === displayIndex ? "scale(1.4)" : "scale(1)",
-                transition: "all 0.2s",
-              }}
-            />
-          ))}
-        </div>
-      </div>
+      )}
     </section>
   );
 }

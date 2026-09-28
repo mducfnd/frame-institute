@@ -17,7 +17,15 @@ export default function FooterSection() {
   const [arrived,   setArrived]   = useState(false);
   const [animKey,   setAnimKey]   = useState(0);
   const [btnHovered, setBtnHovered] = useState(false);
+  const [isMobile,  setIsMobile]  = useState(false);
   const arrivedRef = useRef(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -57,25 +65,6 @@ export default function FooterSection() {
           0%, 42%, 100% { opacity: 1; }
           50%, 92%      { opacity: 0; }
         }
-
-        /* Mobile fixes */
-        @media (max-width: 767px) {
-          .footer-cta-btn {
-            min-width: 0 !important;
-            width: auto !important;
-            padding: 0 2rem !important;
-          }
-          .footer-cta-btn-text {
-            font-size: 18px !important;
-            letter-spacing: 0.14em !important;
-          }
-          .footer-contact-info {
-            font-size: clamp(22px, 4vw, 31px) !important;
-            padding-bottom: 140px !important;
-          }
-        }
-
-        /* Prevent iOS from auto-styling phone numbers blue */
         a[href^="tel"] {
           color: inherit;
           text-decoration: none;
@@ -93,7 +82,6 @@ export default function FooterSection() {
           pointerEvents: slideY < 8 ? "auto" : "none",
         }}
       >
-        {/* ── DISCOVER YOUR FRAME + START HERE ─────────────────────── */}
         <div
           onMouseEnter={handleHeadingEnter}
           style={{
@@ -103,7 +91,6 @@ export default function FooterSection() {
             cursor: "default",
           }}
         >
-          {/* Heading */}
           <div style={{
             fontFamily: FONT,
             fontWeight: 400,
@@ -134,20 +121,19 @@ export default function FooterSection() {
             </div>
           </div>
 
-          {/* START HERE button */}
           <a
             href="/connect"
             onMouseEnter={() => setBtnHovered(true)}
             onMouseLeave={() => setBtnHovered(false)}
-            className="footer-cta-btn"
             style={{
               marginTop: "clamp(20px, 3vh, 40px)",
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
-              padding: "0 clamp(24px, 2.2vw, 36px)",
+              padding: isMobile ? "0 2rem" : `0 clamp(24px, 2.2vw, 36px)`,
               height: "clamp(46px, 9.1vh, 74px)",
-              minWidth: "clamp(170px, 17vw, 270px)",
+              minWidth: isMobile ? 0 : "clamp(170px, 17vw, 270px)",
+              width: isMobile ? "auto" : undefined,
               background: btnHovered ? "#ffffff" : "transparent",
               border: "1.5px solid #ffffff",
               borderRadius: "5px",
@@ -157,12 +143,11 @@ export default function FooterSection() {
             }}
           >
             <span
-              className="footer-cta-btn-text"
               style={{
                 fontFamily: FONT_LIGHT,
                 fontWeight: 400,
-                fontSize: "clamp(16px, 1.5vw, 24px)",
-                letterSpacing: "0.18em",
+                fontSize: isMobile ? "18px" : "clamp(16px, 1.5vw, 24px)",
+                letterSpacing: isMobile ? "0.14em" : "0.18em",
                 textTransform: "uppercase",
                 color: btnHovered ? "#000000" : "#ffffff",
                 transition: "color 0.25s ease",
@@ -175,27 +160,23 @@ export default function FooterSection() {
           </a>
         </div>
 
-        {/* ── Bottom section: contact + FRAME wordmark ── */}
         <div style={{ position: "absolute", bottom: "32px", left: 0, right: 0 }}>
-          {/* Contact block */}
           <div style={{
             display: "flex",
             justifyContent: "flex-end",
             paddingRight: "3%",
-            paddingBottom: "163px",
+            paddingBottom: isMobile ? "140px" : "163px",
           }}>
             <div
-              className="footer-contact-info"
               style={{
                 fontFamily: "'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                 fontWeight: 300,
-                fontSize: "clamp(19px, 1.95vw, 31px)",
+                fontSize: isMobile ? "clamp(22px, 4vw, 31px)" : "clamp(19px, 1.95vw, 31px)",
                 lineHeight: 1.12,
                 color: "#ffffff",
                 textAlign: "right",
               }}
             >
-              {/* Phone: wrapped in <a> to prevent iOS blue auto-link */}
               <div>
                 <a href="tel:+16463860917" style={{ color: "#ffffff", textDecoration: "none" }}>
                   +1 646 386 0917
@@ -207,7 +188,6 @@ export default function FooterSection() {
             </div>
           </div>
 
-          {/* FRAME wordmark */}
           <img
             src="/assets/logo-footer-black.png"
             alt=""

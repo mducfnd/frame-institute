@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
 
 export default function Hero() {
@@ -13,6 +13,15 @@ export default function Hero() {
   const videoWrapRef       = useRef<HTMLDivElement>(null);
   const maskedVideoRef     = useRef<HTMLVideoElement>(null);
   const maskedVideoWrapRef = useRef<HTMLDivElement>(null);
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Sequence: FRAME logo → background video + masked video + UI
   useEffect(() => {
@@ -78,13 +87,6 @@ export default function Hero() {
       ref={sectionRef}
       style={{ position: "absolute", inset: 0, zIndex: 10, overflow: "hidden", background: "#d4dadc" }}
     >
-      {/* Mobile: push subtitle below the nav bar */}
-      <style suppressHydrationWarning>{`
-        @media (max-width: 767px) {
-          .frame-hero-subtitle { padding-top: 5rem !important; }
-        }
-      `}</style>
-
       {/* ── Layer 1: Background video ──────────────────────────────────── */}
       <div
         ref={videoWrapRef}
@@ -142,7 +144,6 @@ export default function Hero() {
       {/* ── Top bar: subtitle centered ─────────────────────────────────── */}
       <div
         ref={subtitleRef}
-        className="frame-hero-subtitle"
         style={{
           position: "absolute",
           top: 0, left: 0, right: 0,
@@ -150,7 +151,7 @@ export default function Hero() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "1.75rem 2rem",
+          padding: isMobile ? "5rem 2rem" : "1.75rem 2rem",
           pointerEvents: "none",
         }}
       >
@@ -177,7 +178,6 @@ export default function Hero() {
         pointerEvents: "none",
       }}>
         <div style={{ width: "100%" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             ref={logoRef}
             src="/assets/logo4.png"
