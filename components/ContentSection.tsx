@@ -19,8 +19,8 @@ const DESCRIPTIONS: Record<string, string> = {
 const VIDEO_TIMESTAMPS = [0, 3, 6, 9, 11, 14, 17];
 
 const ACCORDION_START = 1100;
-const SEGMENT_SIZE   = 500;
-const ZOOM_START     = 4100;   // must match ThirdSection
+const SEGMENT_SIZE   = 800;
+const ZOOM_START     = 5900;   // must match ThirdSection
 
 export default function ContentSection() {
   const videoRef       = useRef<HTMLVideoElement>(null);
@@ -104,7 +104,7 @@ export default function ContentSection() {
 
       // Mobile: directly scrub video time from scroll position — no play/pause race conditions
       if (isMobileRef.current && video.readyState >= 1) {
-        const totalScrollRange = SEGMENT_SIZE * WORDS.length; // 3000px
+        const totalScrollRange = SEGMENT_SIZE * WORDS.length; // 4800px
         const progress = Math.max(0, Math.min(1, accordionScroll / totalScrollRange));
         video.currentTime = progress * TOTAL_VIDEO_TIME;
       }
