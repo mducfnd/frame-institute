@@ -1,0 +1,31 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: #000000; }
+body { overflow-x: hidden; }
+
+/* ── View Transitions (matches pensatori-irrazionali.com exactly) ──────── */
+::view-transition {
+  background-color: rgb(17, 17, 17);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+  transform-origin: 50% center;
+  overflow: hidden;
+}
+::view-transition-old(root) {
+  z-index: 100;
+}
+::view-transition-group(root) {
+  z-index: auto !important;
+}
+::view-transition-image-pair(root) {
+  isolation: isolate;
+  will-change: transform, opacity, clip-path;
+  z-index: 1;
+}
+/* New page starts below viewport at 85% scale — WAAPI takes over from here */
+::view-transition-new(root) {
+  opacity: 1;
+  transform: translateY(100%) scale(0.85);
+}

@@ -1,0 +1,77 @@
+@keyframes scrollUp {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+
+.scrollTrack {
+  animation: scrollUp 200s linear infinite;
+}
+
+.frameInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #c8c8c8;
+  outline: none;
+  padding: 0.65rem 0;
+  font-family: 'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  font-size: clamp(15px, 1.2vw, 19px);
+  letter-spacing: 0.03em;
+  color: #1a1a1a;
+  box-sizing: border-box;
+}
+
+.frameInput::placeholder {
+  color: #aaa;
+}
+
+.frameInput:focus {
+  border-bottom-color: #1a1a1a;
+}
+
+.frameSelect {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #c8c8c8;
+  outline: none;
+  padding: 0.65rem 0;
+  font-family: 'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  font-size: clamp(15px, 1.2vw, 19px);
+  letter-spacing: 0.03em;
+  color: #aaa;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+.frameSelect:focus {
+  border-bottom-color: #1a1a1a;
+  color: #1a1a1a;
+}
+
+.frameSelect option {
+  color: #1a1a1a;
+}
+
+.selectWrap {
+  position: relative;
+}
+
+.selectWrap::after {
+  content: '';
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid #aaa;
+  pointer-events: none;
+}

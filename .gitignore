@@ -1,0 +1,18 @@
+node_modules/
+.next/
+.env*
+*.local
+
+# Large raw video files
+*.mov
+AdobeStock_*
+public/assets/connect-bg.mp4
+
+# Mac
+.DS_Store
+
+# Misc
+*.jpg.bak
+"footer 1 example.png"
+footer1_export.png
+cube-preview-flipped.jpg
