@@ -81,6 +81,8 @@ export default function ContentSection() {
       video.play().catch(() => {});
     };
 
+    const TOTAL_VIDEO_TIME = VIDEO_TIMESTAMPS[WORDS.length]; // 17s
+
     const onScroll = () => {
       const scrollY = window.scrollY;
       const accordionScroll = scrollY - ACCORDION_START;
@@ -94,7 +96,17 @@ export default function ContentSection() {
         activeIdxRef.current = newIndex;
         setScrollIndex(newIndex);
         setManualIndex(null);
-        playSegment(newIndex);
+        // Desktop only: play animated segment
+        if (!isMobileRef.current) {
+          playSegment(newIndex);
+        }
+      }
+
+      // Mobile: directly scrub video time from scroll position — no play/pause race conditions
+      if (isMobileRef.current && video.readyState >= 1) {
+        const totalScrollRange = SEGMENT_SIZE * WORDS.length; // 3000px
+        const progress = Math.max(0, Math.min(1, accordionScroll / totalScrollRange));
+        video.currentTime = progress * TOTAL_VIDEO_TIME;
       }
 
       if (scrollY > ZOOM_START) {
