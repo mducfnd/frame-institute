@@ -127,14 +127,14 @@ export default function Hero() {
         style={{
           position: "absolute", top: 0, left: 0, right: 0, zIndex: 20,
           display: "flex", alignItems: "center", justifyContent: "center",
-          padding: isMobile ? "5rem 2rem" : "1.75rem 2rem",
+          padding: isMobile ? "6.5rem 2rem" : "1.75rem 2rem",
           pointerEvents: "none",
         }}
       >
         <div style={{
           fontFamily: "'nitti-grotesk-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
           fontWeight: 500,
-          fontSize: isMobile ? "20px" : "clamp(17px, 1.775vw, 25px)",
+          fontSize: isMobile ? "22px" : "clamp(17px, 1.775vw, 25px)",
           letterSpacing: "0.06em",
           textTransform: "uppercase",
           color: "#000000",
