@@ -16,7 +16,7 @@ const INTERESTS = [
 ];
 
 export default function ConnectPage() {
-  const reps = 6;
+  const reps = 8;
 
   return (
     <>
@@ -25,12 +25,126 @@ export default function ConnectPage() {
           from { transform: translateY(0); }
           to   { transform: translateY(-50%); }
         }
-        .scroll-track {
+        @keyframes scrollLeft {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+
+        /* ─── Desktop: vertical scroll strip on left ─── */
+        .connect-scroll-strip {
+          position: fixed;
+          top: 0;
+          left: 240px;
+          bottom: 0;
+          width: 280px;
+          overflow: hidden;
+          z-index: 0;
+        }
+        .connect-scroll-track {
           animation: scrollUp 120s linear infinite;
           display: flex;
           flex-direction: column;
           align-items: flex-end;
         }
+        .connect-scroll-item {
+          writing-mode: vertical-rl;
+          transform: rotate(180deg);
+          font-family: ${FONT_MED};
+          font-weight: 500;
+          font-size: 250px;
+          line-height: 0.9;
+          letter-spacing: -0.01em;
+          color: #c8c8c8;
+          white-space: nowrap;
+          padding-top: 2rem;
+          padding-bottom: 2rem;
+          user-select: none;
+        }
+        .connect-main {
+          margin-left: 530px;
+          flex: 1;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          padding-top: 110px;
+          padding-bottom: 64px;
+          align-items: end;
+        }
+        .connect-left-col {
+          padding-top: 0;
+          padding-bottom: calc(0.65rem + 10px);
+          padding-left: 0;
+          padding-right: 93px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          align-items: flex-end;
+        }
+        .connect-left-col-inner { width: 240px; }
+        .connect-right-col {
+          padding-top: 0;
+          padding-bottom: 0;
+          padding-left: 48px;
+          padding-right: 40px;
+        }
+
+        /* ─── Mobile: horizontal marquee at top, stacked content ─── */
+        @media (max-width: 767px) {
+          .connect-page {
+            min-width: 0 !important;
+            flex-direction: column !important;
+            overflow: visible !important;
+          }
+          .connect-scroll-strip {
+            position: static !important;
+            width: 100% !important;
+            height: 120px !important;
+            left: auto !important;
+            bottom: auto !important;
+            overflow: hidden !important;
+            border-bottom: 1px solid #f0f0f0;
+          }
+          .connect-scroll-track {
+            animation: scrollLeft 40s linear infinite !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            height: 100% !important;
+            width: max-content !important;
+          }
+          .connect-scroll-item {
+            writing-mode: horizontal-tb !important;
+            transform: none !important;
+            font-size: 80px !important;
+            line-height: 1 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+          }
+          .connect-main {
+            margin-left: 0 !important;
+            grid-template-columns: 1fr !important;
+            padding-top: 2.5rem !important;
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+            padding-bottom: 3rem !important;
+            align-items: start !important;
+          }
+          .connect-left-col {
+            padding-right: 0 !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            padding-bottom: 2.5rem !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+            margin-bottom: 2.5rem !important;
+          }
+          .connect-left-col-inner { width: 100% !important; }
+          .connect-right-col {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+        }
+
+        /* ─── Form inputs (shared) ─── */
         .frame-input {
           width: 100%;
           background: transparent;
@@ -47,6 +161,7 @@ export default function ConnectPage() {
         }
         .frame-input::placeholder { color: #aaa; }
         .frame-input:focus { border-bottom-color: #1a1a1a; }
+
         .frame-select {
           width: 100%;
           background: transparent;
@@ -67,6 +182,7 @@ export default function ConnectPage() {
         }
         .frame-select:focus { border-bottom-color: #1a1a1a; color: #1a1a1a; }
         .frame-select option { color: #1a1a1a; }
+
         .select-wrap { position: relative; }
         .select-wrap::after {
           content: '';
@@ -82,47 +198,22 @@ export default function ConnectPage() {
         }
       `}</style>
 
-      <div style={{
-        minHeight: "100vh",
-        minWidth: "1100px",
-        background: "#ffffff",
-        display: "flex",
-        position: "relative",
-        overflow: "hidden",
-      }}>
+      <div
+        className="connect-page"
+        style={{
+          minHeight: "100vh",
+          background: "#ffffff",
+          display: "flex",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
 
-        {/* ═══ LEFT — scrolling text strip ═══ */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: "240px",
-            bottom: 0,
-            width: "280px",
-            overflow: "hidden",
-            zIndex: 0,
-          }}
-        >
-          <div className="scroll-track">
+        {/* ═══ Scrolling CONNECT strip ═══ */}
+        <div aria-hidden="true" className="connect-scroll-strip">
+          <div className="connect-scroll-track">
             {Array.from({ length: reps * 2 }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  writingMode: "vertical-rl",
-                  transform: "rotate(180deg)",
-                  fontFamily: FONT_MED,
-                  fontWeight: 500,
-                  fontSize: "250px",
-                  lineHeight: 0.9,
-                  letterSpacing: "-0.01em",
-                  color: "#c8c8c8",
-                  whiteSpace: "nowrap",
-                  paddingTop: "2rem",
-                  paddingBottom: "2rem",
-                  userSelect: "none",
-                }}
-              >
+              <div key={i} className="connect-scroll-item">
                 {SCROLL_TEXT}
               </div>
             ))}
@@ -130,28 +221,11 @@ export default function ConnectPage() {
         </div>
 
         {/* ═══ MAIN CONTENT ═══ */}
-        <div style={{
-          marginLeft: "530px",
-          flex: 1,
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          paddingTop: "110px",
-          paddingBottom: "64px",
-          alignItems: "end",
-        }}>
+        <div className="connect-main">
 
-          {/* ─── CENTER-LEFT: contact info, bottom-aligned ─── */}
-          <div style={{
-            paddingTop: 0,
-            paddingBottom: "calc(0.65rem + 10px)",
-            paddingLeft: 0,
-            paddingRight: "93px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}>
-            <div style={{ width: "240px" }}>
+          {/* ─── Let's Talk + contact info ─── */}
+          <div className="connect-left-col">
+            <div className="connect-left-col-inner">
               <h2 style={{
                 fontFamily: FONT,
                 fontWeight: 400,
@@ -198,13 +272,8 @@ export default function ConnectPage() {
             </div>
           </div>
 
-          {/* ─── RIGHT: contact form ─── */}
-          <div style={{
-            paddingTop: 0,
-            paddingBottom: 0,
-            paddingLeft: "48px",
-            paddingRight: "40px",
-          }}>
+          {/* ─── Drop a Line form ─── */}
+          <div className="connect-right-col">
             <h3 style={{
               fontFamily: FONT,
               fontWeight: 400,

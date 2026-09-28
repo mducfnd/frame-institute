@@ -78,6 +78,13 @@ export default function Hero() {
       ref={sectionRef}
       style={{ position: "absolute", inset: 0, zIndex: 10, overflow: "hidden", background: "#d4dadc" }}
     >
+      {/* Mobile: push subtitle below the nav bar */}
+      <style suppressHydrationWarning>{`
+        @media (max-width: 767px) {
+          .frame-hero-subtitle { padding-top: 5rem !important; }
+        }
+      `}</style>
+
       {/* ── Layer 1: Background video ──────────────────────────────────── */}
       <div
         ref={videoWrapRef}
@@ -105,8 +112,7 @@ export default function Hero() {
         pointerEvents: "none",
       }} />
 
-      {/* ── Layer 2: Masked video — same video, visible only through FRAME letter shapes,
-              at low opacity so letters stay black but have subtle video texture ── */}
+      {/* ── Layer 2: Masked video ── */}
       <div
         ref={maskedVideoWrapRef}
         style={{
@@ -136,6 +142,7 @@ export default function Hero() {
       {/* ── Top bar: subtitle centered ─────────────────────────────────── */}
       <div
         ref={subtitleRef}
+        className="frame-hero-subtitle"
         style={{
           position: "absolute",
           top: 0, left: 0, right: 0,
