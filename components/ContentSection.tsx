@@ -338,8 +338,8 @@ export default function ContentSection() {
           <div style={{
             fontFamily: FONT_FAMILY,
             fontWeight: 300,
-            fontSize: "22px",
-            lineHeight: 1.55,
+            fontSize: "21px",
+            lineHeight: 1.19,
             color: "rgba(255,255,255,0.85)",
             maxWidth: "88%",
             flex: 1,
