@@ -103,13 +103,14 @@ export default function ConnectPage() {
             paddingTop: "72px",
           }}
         >
-          {/* Horizontal CONNECT marquee */}
+          {/* Horizontal CONNECT marquee — hidden on mobile */}
           <div
             aria-hidden="true"
             style={{
               width: "100%",
               height: "140px",
               overflow: "hidden",
+              display: "none",
             }}
           >
             <div
