@@ -299,7 +299,7 @@ export default function ContentSection() {
             left: 0,
             right: 0,
             zIndex: 10,
-            height: "46vh",          // fixed: top of block always at 54vh from top
+            height: "42vh",          // fixed: top of block always at 58vh from top
             padding: "0.75rem 1.5rem 0",
             display: "flex",
             flexDirection: "column",
