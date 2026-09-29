@@ -152,22 +152,42 @@ export default function ConnectPage() {
               padding: "2.5rem 1.5rem 3rem",
             }}
           >
+            {/* Contact video — mobile */}
+            <div style={{ width: "100%", height: "260px", marginBottom: "1.5rem", overflow: "hidden" }}>
+              <video autoPlay loop muted playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                src="/contact-loop.mp4"
+              />
+            </div>
+
             {/* Let's Talk + contact info */}
             <div style={{ marginBottom: "2.5rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                {/* Left: heading */}
-                <h2 style={{
-                  fontFamily: FONT,
-                  fontWeight: 400,
-                  fontSize: "36px",
-                  letterSpacing: "-0.01em",
-                  color: "#1a1a1a",
-                  margin: 0,
-                  lineHeight: 1.1,
-                  flexShrink: 0,
-                }}>
-                  Let&apos;s talk
-                </h2>
+                {/* Left: heading + tagline */}
+                <div>
+                  <h2 style={{
+                    fontFamily: FONT,
+                    fontWeight: 400,
+                    fontSize: "36px",
+                    letterSpacing: "-0.01em",
+                    color: "#1a1a1a",
+                    margin: "0 0 8px 0",
+                    lineHeight: 1.1,
+                  }}>
+                    Let&apos;s talk
+                  </h2>
+                  <p style={{
+                    fontFamily: FONT_SLT,
+                    fontWeight: 400,
+                    fontSize: "15px",
+                    letterSpacing: "0.01em",
+                    color: "#555",
+                    lineHeight: 1.6,
+                    margin: 0,
+                  }}>
+                    Based in the U.S., available everywhere.
+                  </p>
+                </div>
 
                 {/* Right: contact details */}
                 <div style={{ textAlign: "right" }}>
@@ -354,7 +374,7 @@ export default function ConnectPage() {
               gridTemplateColumns: "1fr 1fr",
               paddingTop: "110px",
               paddingBottom: "64px",
-              alignItems: "end",
+              alignItems: "stretch",
             }}
           >
             {/* Let's Talk + contact info */}
@@ -366,10 +386,17 @@ export default function ConnectPage() {
                 paddingRight: "93px",
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "flex-end",
                 alignItems: "flex-end",
               }}
             >
+              {/* Contact video — desktop */}
+              <div style={{ width: "240px", flex: 1, minHeight: 0, marginBottom: "28px", overflow: "hidden" }}>
+                <video autoPlay loop muted playsInline
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  src="/contact-loop.mp4"
+                />
+              </div>
+
               <div style={{ width: "240px" }}>
                 <h2 style={{
                   fontFamily: FONT,
@@ -377,11 +404,22 @@ export default function ConnectPage() {
                   fontSize: "36px",
                   letterSpacing: "-0.01em",
                   color: "#1a1a1a",
-                  margin: "0 0 30px 0",
+                  margin: "0 0 12px 0",
                   lineHeight: 1.1,
                 }}>
                   Let&apos;s talk
                 </h2>
+                <p style={{
+                  fontFamily: FONT_SLT,
+                  fontWeight: 400,
+                  fontSize: "15px",
+                  letterSpacing: "0.01em",
+                  color: "#555",
+                  lineHeight: 1.6,
+                  margin: "0 0 30px 0",
+                }}>
+                  Based in the U.S., available everywhere.
+                </p>
 
                 {[
                   { label: "Email",    lines: ["hello@frame.institute"] },
