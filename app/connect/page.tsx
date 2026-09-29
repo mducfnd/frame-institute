@@ -153,7 +153,7 @@ export default function ConnectPage() {
             }}
           >
             {/* Contact video — mobile */}
-            <div style={{ width: "100%", height: "260px", marginBottom: "1.5rem", overflow: "hidden" }}>
+            <div style={{ width: "240px", height: "240px", marginBottom: "1.5rem", overflow: "hidden" }}>
               <video autoPlay loop muted playsInline
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                 src="/contact-loop.mp4"
@@ -179,13 +179,14 @@ export default function ConnectPage() {
                   <p style={{
                     fontFamily: FONT_SLT,
                     fontWeight: 400,
-                    fontSize: "15px",
+                    fontSize: "13px",
                     letterSpacing: "0.01em",
                     color: "#555",
                     lineHeight: 1.6,
                     margin: 0,
+                    whiteSpace: "nowrap",
                   }}>
-                    Based in the U.S., available everywhere.
+                    Based in the U.S. Available everywhere.
                   </p>
                 </div>
 
@@ -390,7 +391,7 @@ export default function ConnectPage() {
               }}
             >
               {/* Contact video — desktop */}
-              <div style={{ width: "240px", flex: 1, minHeight: 0, marginBottom: "28px", overflow: "hidden" }}>
+              <div style={{ width: "240px", height: "240px", marginBottom: "28px", overflow: "hidden" }}>
                 <video autoPlay loop muted playsInline
                   style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   src="/contact-loop.mp4"
@@ -412,13 +413,14 @@ export default function ConnectPage() {
                 <p style={{
                   fontFamily: FONT_SLT,
                   fontWeight: 400,
-                  fontSize: "15px",
+                  fontSize: "13px",
                   letterSpacing: "0.01em",
                   color: "#555",
                   lineHeight: 1.6,
                   margin: "0 0 30px 0",
+                  whiteSpace: "nowrap",
                 }}>
-                  Based in the U.S., available everywhere.
+                  Based in the U.S. Available everywhere.
                 </p>
 
                 {[
