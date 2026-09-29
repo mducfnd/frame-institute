@@ -96,9 +96,11 @@ export default function ContentSection() {
         activeIdxRef.current = newIndex;
         setScrollIndex(newIndex);
         setManualIndex(null);
-        // Desktop only: play animated segment
+        // Desktop: play animated segment. Mobile: play DEFINE (idx 0) on first entry to unlock iOS video
         if (!isMobileRef.current) {
           playSegment(newIndex);
+        } else if (newIndex === 0) {
+          playSegment(0);
         }
       }
 
@@ -336,7 +338,7 @@ export default function ContentSection() {
           <div style={{
             fontFamily: FONT_FAMILY,
             fontWeight: 300,
-            fontSize: "20px",
+            fontSize: "22px",
             lineHeight: 1.55,
             color: "rgba(255,255,255,0.85)",
             maxWidth: "88%",

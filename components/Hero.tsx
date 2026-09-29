@@ -155,10 +155,10 @@ export default function Hero() {
       {/* ── Down chevron ── */}
       <div
         ref={arrowRef}
-        style={{ position: "absolute", bottom: "2.25rem", left: "50%", transform: "translateX(-50%)", zIndex: 20, pointerEvents: "none" }}
+        style={{ position: "absolute", bottom: "4rem", left: "50%", transform: "translateX(-50%)", zIndex: 20, pointerEvents: "none" }}
       >
         <svg width="28" height="17" viewBox="0 0 28 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1L14 15.5L27 1" stroke="#000000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M1 1L14 15.5L27 1" stroke="#000000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
 

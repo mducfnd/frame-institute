@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { usePageTransition } from "@/components/TransitionProvider";
 
 const FONT = "'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 const FONT_LIGHT = "'nitti-grotesk-light', 'Helvetica Neue', Helvetica, Arial, sans-serif";
@@ -18,6 +19,7 @@ export default function FooterSection() {
   const [animKey,   setAnimKey]   = useState(0);
   const [btnHovered, setBtnHovered] = useState(false);
   const [isMobile,  setIsMobile]  = useState(false);
+  const { navigateTo }               = usePageTransition();
   const arrivedRef = useRef(false);
 
   useEffect(() => {
@@ -121,8 +123,8 @@ export default function FooterSection() {
             </div>
           </div>
 
-          <a
-            href="/connect"
+          <button
+            onClick={() => navigateTo("/connect")}
             onMouseEnter={() => setBtnHovered(true)}
             onMouseLeave={() => setBtnHovered(false)}
             style={{
@@ -157,7 +159,7 @@ export default function FooterSection() {
               }}>
               Start Here
             </span>
-          </a>
+          </button>
         </div>
 
         <div style={{ position: "absolute", bottom: "32px", left: 0, right: 0 }}>
