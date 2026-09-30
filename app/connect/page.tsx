@@ -17,6 +17,28 @@ const INTERESTS = [
 ];
 
 export default function ConnectPage() {
+  const FORMSPREE_URL = "https://formspree.io/f/xvkgyajl";
+  const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormStatus("submitting");
+    const data = new FormData(e.currentTarget);
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        setFormStatus("success");
+      } else {
+        setFormStatus("error");
+      }
+    } catch {
+      setFormStatus("error");
+    }
+  };
   const reps = 8;
   const [isMobile, setIsMobile] = useState(false);
 
@@ -234,7 +256,7 @@ export default function ConnectPage() {
               </p>
 
               <form
-                onSubmit={(e) => e.preventDefault()}
+                onSubmit={handleSubmit}
                 style={{ display: "flex", flexDirection: "column", gap: "24px" }}
               >
                 {["Full Name", "Email", "Phone", "Company", "Title"].map((field) => (
@@ -242,12 +264,13 @@ export default function ConnectPage() {
                     key={field}
                     className="frame-input"
                     type={field === "Email" ? "email" : field === "Phone" ? "tel" : "text"}
+                    name={field.toLowerCase().replace(" ", "_")}
                     placeholder={field}
                   />
                 ))}
 
                 <div className="select-wrap">
-                  <select className="frame-select" defaultValue="">
+                  <select className="frame-select" name="interest" defaultValue="">
                     <option value="" disabled>What are you interested in?</option>
                     {INTERESTS.map((opt) => (
                       <option key={opt} value={opt}>{opt}</option>
@@ -258,6 +281,7 @@ export default function ConnectPage() {
                 <textarea
                   className="frame-input"
                   placeholder="Message"
+                  name="message"
                   rows={4}
                   style={{ resize: "none", paddingTop: "0.65rem" }}
                 />
@@ -265,6 +289,7 @@ export default function ConnectPage() {
                 <div>
                   <button
                     type="submit"
+                    disabled={formStatus === "submitting"}
                     style={{
                       marginTop: "12px",
                       display: "inline-flex",
@@ -280,10 +305,11 @@ export default function ConnectPage() {
                       fontSize: "12px",
                       letterSpacing: "0.18em",
                       textTransform: "uppercase",
-                      cursor: "pointer",
+                      cursor: formStatus === "submitting" ? "wait" : "pointer",
+                      opacity: formStatus === "submitting" ? 0.6 : 1,
                     }}
                   >
-                    Send
+                    {formStatus === "submitting" ? "Sending..." : "Send"}
                   </button>
                 </div>
               </form>
@@ -452,7 +478,7 @@ export default function ConnectPage() {
               </p>
 
               <form
-                onSubmit={(e) => e.preventDefault()}
+                onSubmit={handleSubmit}
                 style={{ display: "flex", flexDirection: "column", gap: "24px" }}
               >
                 {["Full Name", "Email", "Phone", "Company", "Title"].map((field) => (
@@ -460,12 +486,13 @@ export default function ConnectPage() {
                     key={field}
                     className="frame-input"
                     type={field === "Email" ? "email" : field === "Phone" ? "tel" : "text"}
+                    name={field.toLowerCase().replace(" ", "_")}
                     placeholder={field}
                   />
                 ))}
 
                 <div className="select-wrap">
-                  <select className="frame-select" defaultValue="">
+                  <select className="frame-select" name="interest" defaultValue="">
                     <option value="" disabled>What are you interested in?</option>
                     {INTERESTS.map((opt) => (
                       <option key={opt} value={opt}>{opt}</option>
@@ -476,6 +503,7 @@ export default function ConnectPage() {
                 <textarea
                   className="frame-input"
                   placeholder="Message"
+                  name="message"
                   rows={4}
                   style={{ resize: "none", paddingTop: "0.65rem" }}
                 />
@@ -483,6 +511,7 @@ export default function ConnectPage() {
                 <div>
                   <button
                     type="submit"
+                    disabled={formStatus === "submitting"}
                     style={{
                       marginTop: "12px",
                       display: "inline-flex",
@@ -498,13 +527,24 @@ export default function ConnectPage() {
                       fontSize: "12px",
                       letterSpacing: "0.18em",
                       textTransform: "uppercase",
-                      cursor: "pointer",
+                      cursor: formStatus === "submitting" ? "wait" : "pointer",
+                      opacity: formStatus === "submitting" ? 0.6 : 1,
                     }}
                   >
-                    Send
+                    {formStatus === "submitting" ? "Sending..." : "Send"}
                   </button>
                 </div>
               </form>
+                {formStatus === "success" && (
+                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#1a1a1a", marginTop: "8px", letterSpacing: "0.02em" }}>
+                    Thank you — we&apos;ll be in touch soon.
+                  </p>
+                )}
+                {formStatus === "error" && (
+                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#c00", marginTop: "8px", letterSpacing: "0.02em" }}>
+                    Something went wrong. Please try again or email us directly.
+                  </p>
+                )}
             </div>
 
           </div>
