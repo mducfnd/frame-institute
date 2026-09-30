@@ -259,13 +259,21 @@ export default function ConnectPage() {
                 onSubmit={handleSubmit}
                 style={{ display: "flex", flexDirection: "column", gap: "24px" }}
               >
-                {["Full Name", "Email", "Phone", "Company", "Title"].map((field) => (
+                {[
+                  { label: "Full Name", name: "full_name", type: "text", required: true, autoComplete: "name" },
+                  { label: "Email", name: "email", type: "email", required: true, autoComplete: "email" },
+                  { label: "Phone", name: "phone", type: "tel", required: false, autoComplete: "tel" },
+                  { label: "Company", name: "company", type: "text", required: false, autoComplete: "organization" },
+                  { label: "Title", name: "title", type: "text", required: false, autoComplete: "organization-title" },
+                ].map((field) => (
                   <input
-                    key={field}
+                    key={field.name}
                     className="frame-input"
-                    type={field === "Email" ? "email" : field === "Phone" ? "tel" : "text"}
-                    name={field.toLowerCase().replace(" ", "_")}
-                    placeholder={field}
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.label + (field.required ? "" : " (optional)")}
+                    required={field.required}
+                    autoComplete={field.autoComplete}
                   />
                 ))}
 
@@ -282,6 +290,7 @@ export default function ConnectPage() {
                   className="frame-input"
                   placeholder="Message"
                   name="message"
+                  required
                   rows={4}
                   style={{ resize: "none", paddingTop: "0.65rem" }}
                 />
@@ -481,13 +490,21 @@ export default function ConnectPage() {
                 onSubmit={handleSubmit}
                 style={{ display: "flex", flexDirection: "column", gap: "24px" }}
               >
-                {["Full Name", "Email", "Phone", "Company", "Title"].map((field) => (
+                {[
+                  { label: "Full Name", name: "full_name", type: "text", required: true, autoComplete: "name" },
+                  { label: "Email", name: "email", type: "email", required: true, autoComplete: "email" },
+                  { label: "Phone", name: "phone", type: "tel", required: false, autoComplete: "tel" },
+                  { label: "Company", name: "company", type: "text", required: false, autoComplete: "organization" },
+                  { label: "Title", name: "title", type: "text", required: false, autoComplete: "organization-title" },
+                ].map((field) => (
                   <input
-                    key={field}
+                    key={field.name}
                     className="frame-input"
-                    type={field === "Email" ? "email" : field === "Phone" ? "tel" : "text"}
-                    name={field.toLowerCase().replace(" ", "_")}
-                    placeholder={field}
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.label + (field.required ? "" : " (optional)")}
+                    required={field.required}
+                    autoComplete={field.autoComplete}
                   />
                 ))}
 
@@ -504,6 +521,7 @@ export default function ConnectPage() {
                   className="frame-input"
                   placeholder="Message"
                   name="message"
+                  required
                   rows={4}
                   style={{ resize: "none", paddingTop: "0.65rem" }}
                 />
