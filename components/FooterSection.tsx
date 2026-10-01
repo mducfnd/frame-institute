@@ -181,8 +181,8 @@ export default function FooterSection() {
               }}
             >
               <div>
-                <a href="tel:+16463860917" style={{ color: "#ffffff", textDecoration: "none" }}>
-                  +1 646 386 0917
+                <a href="tel:+12124705433" style={{ color: "#ffffff", textDecoration: "none" }}>
+                  +1 212 470 5433
                 </a>
               </div>
               <div>hello@frame.institute</div>

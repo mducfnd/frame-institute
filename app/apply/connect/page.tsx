@@ -166,7 +166,7 @@ export default function ConnectPage() {
 
               {[
                 { label: "Email",    lines: ["hello@frame.institute"] },
-                { label: "Phone",    lines: ["+1 646 386 0917"] },
+                { label: "Phone",    lines: ["+1 212 470 5433"] },
                 { label: "Address",  lines: ["224 W 35th St Ste 500", "New York, NY 10001"] },
               ].map(({ label, lines }) => (
                 <div key={label} style={{ marginBottom: "32px" }}>
