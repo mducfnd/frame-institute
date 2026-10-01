@@ -3,6 +3,11 @@
 
 import { useRef, useEffect, useState } from "react";
 import gsap from "gsap";
+import { prefersReducedMotion, pickFilm } from "@/lib/media";
+
+const HERO_SMALL  = "/assets/hero2-1280-v2.mp4";
+const HERO_LARGE  = "/assets/hero2-1920-v2.mp4";
+const HERO_POSTER = "/assets/hero2-poster-v2.jpg";
 
 export default function Hero() {
   const sectionRef         = useRef<HTMLElement>(null);
@@ -15,6 +20,25 @@ export default function Hero() {
   const maskedVideoWrapRef = useRef<HTMLDivElement>(null);
 
   const [isMobile, setIsMobile] = useState(false);
+
+  // Playback is allowed only while the hero is on screen, the tab is visible,
+  // and the visitor hasn't asked for reduced motion.
+  const inViewRef      = useRef(true);
+  const mainStartedRef = useRef(false);
+  const reducedRef     = useRef(false);
+
+  const syncPlayback = () => {
+    const video = videoRef.current, masked = maskedVideoRef.current;
+    if (!video || !masked) return;
+    const run = inViewRef.current && !document.hidden && !reducedRef.current;
+    if (run) {
+      masked.play().catch(() => {});
+      if (mainStartedRef.current) video.play().catch(() => {});
+    } else {
+      masked.pause();
+      video.pause();
+    }
+  };
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -31,19 +55,35 @@ export default function Hero() {
     const subtitle        = subtitleRef.current;
     const arrow           = arrowRef.current;
 
-    maskedVideo?.play().catch(() => {});
+    reducedRef.current = prefersReducedMotion();
+    if (!reducedRef.current) {
+      // Choose the export before assigning a source so only one file is fetched
+      const src = pickFilm(HERO_SMALL, HERO_LARGE);
+      if (video)       video.src = src;
+      if (maskedVideo) maskedVideo.src = src;
+    }
+    syncPlayback();
+
+    const onVisibility = () => syncPlayback();
+    document.addEventListener("visibilitychange", onVisibility);
 
     const tl = gsap.timeline({ delay: 0.1 });
     tl.to(logoEl, { autoAlpha: 1, duration: 1.1, ease: "power2.out" });
     tl.add(() => {
-      video?.play().catch(() => {});
+      mainStartedRef.current = true;
+      syncPlayback();
       gsap.to(video,           { autoAlpha: 1, duration: 0.5, ease: "power1.inOut" });
       gsap.to(maskedVideoWrap, { autoAlpha: 0.18, duration: 1.1, ease: "power2.inOut" });
       gsap.to(subtitle,        { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
       gsap.to(arrow,           { autoAlpha: 1, duration: 0.45, ease: "power2.out" });
     }, "+=0.25");
 
-    return () => { tl.kill(); };
+    return () => {
+      tl.kill();
+      document.removeEventListener("visibilitychange", onVisibility);
+      video?.pause();
+      maskedVideo?.pause();
+    };
   }, []);
 
   useEffect(() => {
@@ -72,6 +112,13 @@ export default function Hero() {
       const heroAlpha = Math.max(0, 1 - Math.max(0, (p - 0.60) / 0.40));
       section.style.opacity       = String(heroAlpha);
       section.style.pointerEvents = heroAlpha < 0.05 ? "none" : "auto";
+
+      // Hero fully faded: stop decoding both films until the visitor scrolls back
+      const inView = heroAlpha > 0;
+      if (inView !== inViewRef.current) {
+        inViewRef.current = inView;
+        syncPlayback();
+      }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -91,11 +138,9 @@ export default function Hero() {
       >
         <video
           ref={videoRef}
-          muted loop playsInline preload="auto"
+          muted loop playsInline preload="auto" poster={HERO_POSTER}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-        >
-          <source src="/assets/hero2.mp4" type="video/mp4" />
-        </video>
+        />
       </div>
 
       <div style={{ position: "absolute", inset: 0, background: "rgba(255,255,255,0.25)", zIndex: 1, pointerEvents: "none" }} />
@@ -114,11 +159,9 @@ export default function Hero() {
       >
         <video
           ref={maskedVideoRef}
-          muted loop playsInline preload="auto"
+          muted loop playsInline preload="auto" poster={HERO_POSTER}
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
-        >
-          <source src="/assets/hero2.mp4" type="video/mp4" />
-        </video>
+        />
       </div>
 
       {/* ── Subtitle ── */}

@@ -90,6 +90,7 @@ export default function FooterSection() {
             position: "absolute",
             top: "calc(9% + 30px)",
             left: "3%",
+            zIndex: 1, // keep Start Here above the contact block on short screens
             cursor: "default",
           }}
         >

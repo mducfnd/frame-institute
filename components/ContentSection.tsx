@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import { prefersReducedMotion, pickFilm, createSeekController } from "@/lib/media";
 
 const FONT_FAMILY = "'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 const FONT_WEIGHT = 400;
@@ -15,6 +16,11 @@ const DESCRIPTIONS: Record<string, string> = {
   DEPLOY:   "FRAME works one-on-one and at scale. Individual engagements are highly actionable—focused on the questions, roadblocks, and decisions that keep resurfacing. Team and organizational engagements bring that same precision to groups, revealing how motivational differences influence communication, collaboration, and leadership.",
   DEVELOP:  "FRAME evolves with the individuals and organizations it serves, becoming increasingly valuable as circumstances shift, new decisions emerge, and relationships change. Designed to integrate with generative AI, FRAME is an adaptive system that extends beyond the limits of a fixed model.",
 };
+
+// Desktop plays segments forward; phones scrub a version with a keyframe every 0.4s
+const FILM_DESKTOP = "/assets/section2-1920-v2.mp4";
+const FILM_SEEK    = "/assets/section2-1280-seek-v2.mp4";
+const FILM_POSTER  = "/assets/section2-poster-v2.jpg";
 
 const VIDEO_TIMESTAMPS = [0, 3, 6, 9, 11, 14, 17];
 
@@ -49,6 +55,10 @@ export default function ContentSection() {
     const video = videoRef.current;
     if (!video) return;
 
+    const reduced = prefersReducedMotion();
+    video.src = isMobileRef.current ? FILM_SEEK : pickFilm(FILM_SEEK, FILM_DESKTOP, window.innerWidth / 2);
+    const seeker = createSeekController(video);
+
     const playSegment = (idx: number) => {
       if (timeHandlerRef.current) {
         video.removeEventListener("timeupdate", timeHandlerRef.current);
@@ -63,6 +73,13 @@ export default function ContentSection() {
 
       const start = VIDEO_TIMESTAMPS[idx];
       const end   = VIDEO_TIMESTAMPS[idx + 1];
+
+      // Reduced motion: show the chapter's finished frame instead of animating to it
+      if (reduced) {
+        video.pause();
+        seeker.seekTo(end);
+        return;
+      }
 
       video.currentTime = start;
 
@@ -96,19 +113,16 @@ export default function ContentSection() {
         activeIdxRef.current = newIndex;
         setScrollIndex(newIndex);
         setManualIndex(null);
-        // Desktop: play animated segment. Mobile: play DEFINE (idx 0) on first entry to unlock iOS video
-        if (!isMobileRef.current) {
-          playSegment(newIndex);
-        } else if (newIndex === 0) {
-          playSegment(0);
-        }
+        // Desktop: play animated segment. Mobile scrubs below (iOS is unlocked on first touch)
+        if (!isMobileRef.current || reduced) playSegment(newIndex);
       }
 
-      // Mobile: directly scrub video time from scroll position — no play/pause race conditions
-      if (isMobileRef.current && video.readyState >= 1) {
+      // Mobile: scrub video time from scroll position, one seek in flight at a time
+      if (isMobileRef.current && !reduced) {
         const totalScrollRange = SEGMENT_SIZE * WORDS.length; // 4800px
         const progress = Math.max(0, Math.min(1, accordionScroll / totalScrollRange));
-        video.currentTime = progress * TOTAL_VIDEO_TIME;
+        if (!video.paused) video.pause();
+        seeker.seekTo(progress * TOTAL_VIDEO_TIME);
       }
 
       if (scrollY > ZOOM_START) {
@@ -124,6 +138,7 @@ export default function ContentSection() {
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      seeker.destroy();
       if (timeHandlerRef.current) {
         video.removeEventListener("timeupdate", timeHandlerRef.current);
       }
@@ -156,8 +171,9 @@ export default function ContentSection() {
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    if (prefersReducedMotion()) return;
     const unlock = () => {
-      v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(() => {});
+      v.play().then(() => { v.pause(); }).catch(() => {});
     };
     window.addEventListener("touchstart", unlock, { once: true, passive: true });
     return () => window.removeEventListener("touchstart", unlock);
@@ -266,6 +282,7 @@ export default function ContentSection() {
           muted
           playsInline
           preload="auto"
+          poster={FILM_POSTER}
           style={{
             position: "absolute",
             inset: 0,
@@ -273,9 +290,7 @@ export default function ContentSection() {
             height: "100%",
             objectFit: "cover",
           }}
-        >
-          <source src="/assets/section2.mp4" type="video/mp4" />
-        </video>
+        />
 
         {/* Dark gradient overlay — mobile only */}
         {isMobile && (
@@ -369,7 +384,7 @@ export default function ContentSection() {
                   borderRadius: "50%",
                   background: i === displayIndex ? "#ffffff" : "rgba(255,255,255,0.3)",
                   transform: i === displayIndex ? "scale(1.4)" : "scale(1)",
-                  transition: "all 0.2s",
+                  transition: "background 0.2s, transform 0.2s",
                 }}
               />
             ))}

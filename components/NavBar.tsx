@@ -31,6 +31,8 @@ export default function NavBar() {
   }, [isHomePage]);
 
   const showLogo = isHomePage ? pastHero : true;
+  // Footer hides the nav on the home page only; Connect always shows it
+  const hideNav  = isHomePage && footerActive;
 
   return (
     <nav
@@ -46,7 +48,7 @@ export default function NavBar() {
         padding: "0 1.5rem",
         height: "calc(1.3rem + 1.2 * clamp(15px, 1.2vw, 17px))",
         pointerEvents: "none",
-        opacity: footerActive ? 0 : 1,
+        opacity: hideNav ? 0 : 1,
         transition: "opacity 0.35s ease",
       }}
     >
@@ -89,7 +91,7 @@ export default function NavBar() {
           borderRadius: "5px",
           cursor: "pointer",
           border: "none",
-          pointerEvents: footerActive ? "none" : "auto",
+          pointerEvents: hideNav ? "none" : "auto",
         }}
       >
         {isConnectPage ? "Home" : "Connect"}

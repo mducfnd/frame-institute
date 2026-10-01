@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useCallback, ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { prefersReducedMotion } from "@/lib/media";
 
 interface TransitionCtx { navigateTo: (path: string) => void; }
 const TransitionContext = createContext<TransitionCtx>({ navigateTo: () => {} });
@@ -10,7 +11,7 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   const router = useRouter();
 
   const navigateTo = useCallback((path: string) => {
-    if (!("startViewTransition" in document)) {
+    if (!("startViewTransition" in document) || prefersReducedMotion()) {
       router.push(path);
       return;
     }

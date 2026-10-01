@@ -8,6 +8,10 @@ const FONT_SLT = "'nitti-grotesk-semilight', 'Helvetica Neue', Helvetica, Arial,
 
 const SCROLL_TEXT = "CONNECT";
 
+// The side-by-side layout needs ~1200px (530px strip + two columns);
+// anything narrower, including tablets, gets the stacked layout.
+const STACKED_BELOW = 1200;
+
 const INTERESTS = [
   "Individual Engagement",
   "Team or Organization Program",
@@ -43,7 +47,7 @@ export default function ConnectPage() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < STACKED_BELOW);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
@@ -173,6 +177,9 @@ export default function ConnectPage() {
               display: "flex",
               flexDirection: "column",
               padding: "2.5rem 1.5rem 3rem",
+              width: "100%",
+              maxWidth: "720px",
+              margin: "0 auto",
             }}
           >
             {/* Let's Talk + contact info */}
@@ -322,6 +329,16 @@ export default function ConnectPage() {
                   </button>
                 </div>
               </form>
+                {formStatus === "success" && (
+                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#1a1a1a", marginTop: "8px", letterSpacing: "0.02em" }}>
+                    Thank you — we&apos;ll be in touch soon.
+                  </p>
+                )}
+                {formStatus === "error" && (
+                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#c00", marginTop: "8px", letterSpacing: "0.02em" }}>
+                    Something went wrong. Please try again or email us directly.
+                  </p>
+                )}
             </div>
           </div>
         </div>

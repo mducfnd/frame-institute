@@ -29,3 +29,12 @@ body { overflow-x: hidden; }
   opacity: 1;
   transform: translateY(100%) scale(0.85);
 }
+
+/* ── Reduced motion: no looping or decorative animation ──────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
