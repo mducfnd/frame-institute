@@ -9,7 +9,7 @@ const FONT_SLT  = "'nitti-grotesk-semilight', 'Helvetica Neue', Helvetica, Arial
 
 const BLACK = "#0a0a0a";
 
-const TITLES = ["THE MODEL", "THE PROGRAM", "THE SESSIONS"];
+const TITLES = ["THE MODEL", "THE INTENSIVE", "THE SESSIONS"];
 
 type Session = { title: string; duration: string; text: string };
 
@@ -20,7 +20,7 @@ const INTRO_BLOCKS: { text: string }[] = [
   },
   {
     text:
-      "The intensive begins with a two-part assessment to identify your FRAME Profile. From there, the focus shifts to interpreting your results, examining how underlying patterns influence your experiences, and applying those findings to your work and life. Each session is iterative and actionable, centered on choices, challenges, and priorities that matter most.",
+      "The program begins with a two-part assessment to identify your FRAME Profile. From there, the focus shifts to interpreting your results, examining how underlying patterns influence your outlook, and applying those findings to your work and life. Sessions are iterative and actionable, centered on the choices, challenges, and priorities that matter most.",
   },
 ];
 
@@ -29,25 +29,25 @@ const SESSIONS: Session[] = [
     title: "Inquiry & Evaluation",
     duration: "Two 90-minute sessions",
     text:
-      "Conducted across two virtual sessions, this in-depth assessment explores how you perceive, respond, and engage across different contexts. Through structured discussion, we’ll uncover the core factors that form the basis of your FRAME Profile.",
+      "Conducted across two virtual meetings, this in-depth assessment explores how you perceive, respond, and engage across contexts. Through discussion, we’ll uncover the core factors that form the basis of your FRAME Profile.",
   },
   {
     title: "Analysis & Discovery",
-    duration: "75- to 90-minute session",
+    duration: "75–90 minutes",
     text:
       "You’ll receive your completed FRAME Profile along with a detailed interpretation of the results. We’ll walk through what your profile reveals, how it informs your judgment, and where it’s most likely to create obstacles and opportunities.",
   },
   {
     title: "Dynamics & Drivers",
-    duration: "75- to 90-minute session",
+    duration: "75–90 minutes",
     text:
-      "This session examines how your FRAME Profile governs the way you make decisions, pursue goals, and cultivate relationships. Using real-world scenarios, we’ll determine how your profile impacts interactions, responses, and outcomes.",
+      "We’ll examine how your FRAME Profile governs the way you make decisions, pursue goals, and cultivate relationships. Using real-world scenarios, you’ll discover how your profile impacts interactions, responses, and outcomes.",
   },
   {
     title: "Design & Alignment",
-    duration: "75- to 90-minute session",
+    duration: "75–90 minutes",
     text:
-      "Drawing on insights from previous sessions, we’ll develop a strategy for integrating FRAME into your daily life. You’ll leave with a clear approach for using your profile to more effectively invest your time, energy, attention, and ambition.",
+      "Drawing on insights from previous sessions, we’ll develop a strategy for integrating FRAME into your daily life. You’ll leave with a structured approach for using the model to more effectively invest your time, energy, attention, and ambition.",
   },
 ];
 
@@ -56,8 +56,8 @@ const STOPS = 6;
 const TITLE_H_VH = 12;
 const INTRO_H_VH = 78;
 
-const PRE_HOLD_VH = 40;
-const REVEAL_VH   = 60;
+const PRE_HOLD_VH = 55;
+const REVEAL_VH   = 145;
 const CONTENT_VH  = STOPS * 100;
 const SECTION_H_VH = PRE_HOLD_VH + REVEAL_VH + CONTENT_VH;
 
@@ -156,6 +156,26 @@ export default function IntensivePage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const applicationRef = useRef<HTMLDivElement>(null);
+  const applySectionRef = useRef<HTMLElement>(null);
+
+  // Swift eased scroll down to the application form (used when APPLY is clicked).
+  const scrollToApplication = () => {
+    const el = applySectionRef.current;
+    if (!el) return;
+    const startY = window.scrollY;
+    const distance = el.getBoundingClientRect().top;
+    if (Math.abs(distance) < 2) return;
+    const duration = 750;
+    const t0 = performance.now();
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const step = (now: number) => {
+      const t = clamp((now - t0) / duration, 0, 1);
+      window.scrollTo(0, startY + distance * easeInOutCubic(t));
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
 
   const setField = (name: string, value: string) => {
     setFormData((p) => ({ ...p, [name]: value }));
@@ -171,47 +191,65 @@ export default function IntensivePage() {
   useEffect(() => {
     if (reducedMotion || isMobile) return;
     let raf = 0;
-    let ticking = false;
+    let running = true;
+    // Smoothed (scrubbed) values so a fast scroll still plays the burst
+    // instead of flashing straight to full black.
+    let revealCur = 0;
+    let progressCur = 0;
+    let seeded = false;
 
-    const update = () => {
-      ticking = false;
+    const tick = () => {
+      if (!running) return;
       const el = scrollSectionRef.current;
-      if (!el) return;
+      if (!el) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
       const rect = el.getBoundingClientRect();
       const total = el.offsetHeight - window.innerHeight;
-      if (total <= 0) return;
+      if (total <= 0) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
       const scrolled = clamp(-rect.top, 0, total);
 
       const stickyVh = SECTION_H_VH - 100;
       const scrolledVh = (scrolled / total) * stickyVh;
 
-      // Reveal/burst
+      // --- Reveal/burst target ---
       const revealStart = PRE_HOLD_VH;
       const revealEnd = PRE_HOLD_VH + REVEAL_VH;
       const r = clamp((scrolledVh - revealStart) / (revealEnd - revealStart), 0, 1);
-      setReveal(1 - Math.pow(1 - r, 2.4));
+      // Gentler than before (was pow 2.4) so it opens rather than snaps.
+      const revealTarget = 1 - Math.pow(1 - r, 1.7);
 
-      // Content progression
+      // --- Content progression target ---
       const c = clamp((scrolledVh - revealEnd) / (stickyVh - revealEnd), 0, 1);
-      setProgress(c * (STOPS - 1));
+      const progressTarget = c * (STOPS - 1);
 
-      // Nav hide region: once reveal is well underway, until dark section fully exits
-      // Rect.top < viewport * 0.5 means hero mostly past; rect.bottom > 0 means still in dark
+      // On first frame, jump straight to target (e.g. a reload mid-page)
+      if (!seeded) {
+        revealCur = revealTarget;
+        progressCur = progressTarget;
+        seeded = true;
+      } else {
+        // Lerp: lower factor = more lag. Reveal gets the most scrubbing.
+        revealCur += (revealTarget - revealCur) * 0.06;
+        progressCur += (progressTarget - progressCur) * 0.14;
+        if (Math.abs(revealTarget - revealCur) < 0.0005) revealCur = revealTarget;
+        if (Math.abs(progressTarget - progressCur) < 0.0008) progressCur = progressTarget;
+      }
+
+      setReveal(revealCur);
+      setProgress(progressCur);
       setInDark(rect.top < window.innerHeight * 0.4 && rect.bottom > 0);
+
+      raf = requestAnimationFrame(tick);
     };
 
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      raf = requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    tick();
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      running = false;
       cancelAnimationFrame(raf);
     };
   }, [reducedMotion, isMobile]);
@@ -277,7 +315,7 @@ export default function IntensivePage() {
           fontSize: "4.2vw", lineHeight: 1.3,
           color: "#8c8a8a", margin: "4vw 0 0 0",
         }}>
-          4 weeks to identify, apply, and integrate your motivational architecture.
+          4 weeks to identify, explore, and integrate your motivational architecture.
         </p>
       </div>
     </section>
@@ -313,10 +351,10 @@ export default function IntensivePage() {
         </h1>
         <p style={{
           fontFamily: FONT_SLT, fontWeight: 300,
-          fontSize: "1.85vw", lineHeight: 1.25,
-          color: "#8c8a8a", margin: "0.7vw 0 0 0",
+          fontSize: "1.65vw", lineHeight: 1.25,
+          color: "#8c8a8a", margin: "0.8vw 0 0 0",
         }}>
-          4 weeks to identify, apply, and integrate<br />your motivational architecture.
+          4 weeks to identify, explore, and integrate your<br />motivational architecture.
         </p>
       </div>
       <div style={{
@@ -625,13 +663,16 @@ export default function IntensivePage() {
   const applyOut = clamp((transProgress - 0.7) / 0.2, 0, 1);
   const applyOpacity = applyIn * (1 - applyOut);
   const applyColor = bgT > 0.5 ? "#1a1a1a" : "#ffffff";
+  // APPLY is only interactive while it's actually on screen.
+  const applyClickable = transProgress > 0.12 && transProgress < 0.8;
 
   // ---------- APPLICATION FORM ----------
   type Field = {
     name: string;
     label: string;
     required: boolean;
-    type: "text" | "email" | "tel" | "textarea";
+    type: "text" | "email" | "tel" | "textarea" | "select";
+    options?: string[];
     hint?: string;
   };
   type Step = { heading: string; intro?: string; fields: Field[] };
@@ -646,33 +687,44 @@ export default function IntensivePage() {
       ],
     },
     {
-      heading: "What are you working on?",
+      heading: "Tell us about your work.",
       fields: [
         { name: "company", label: "Company / Organization", required: true, type: "text" },
         { name: "role", label: "Current Role / Title", required: true, type: "text" },
-        { name: "work_description", label: "Briefly describe what you do professionally.", required: true, type: "textarea" },
+        { name: "work_description", label: "Briefly describe what you do.", required: true, type: "textarea" },
       ],
     },
     {
       heading: "How did you discover FRAME?",
       fields: [
         { name: "discovery", label: "How did you hear about the FRAME Intensive?", required: true, type: "text" },
-        { name: "referrer", label: "If someone referred you, who referred you?", required: false, type: "text" },
+        { name: "referrer", label: "Were you referred by someone? If so, who?", required: false, type: "text" },
       ],
     },
     {
       heading: "Is now the right time?",
-      intro: "The FRAME Intensive includes two 90-minute assessments followed by three weekly working sessions, spanning a total of four weeks. You\u2019ll have time between sessions to reflect on your insights and apply what you\u2019re learning.",
+      intro: "The FRAME Intensive takes place over four weeks, beginning the week of November 9 and concluding the week of December 7, with a one-week break for Thanksgiving. The program includes two 90-minute assessments followed by three working sessions. You’ll have time between meetings to reflect on your insights and apply what you’re learning.",
       fields: [
-        { name: "commitment", label: "Can you commit to participating fully in the program over a four-week period?", required: true, type: "textarea" },
-        { name: "scheduling", label: "Are there any anticipated scheduling constraints that might affect your participation?", required: true, type: "textarea" },
+        {
+          name: "commitment",
+          label: "Can you commit to participating fully in the program over a four-week period?",
+          required: true,
+          type: "select",
+          options: ["Yes", "No"],
+        },
+        {
+          name: "scheduling",
+          label: "Are there any anticipated scheduling constraints that might affect your participation? If so, please provide details.",
+          required: false,
+          type: "textarea",
+        },
       ],
     },
     {
       heading: "What would you like to explore?",
       fields: [
-        { name: "navigating", label: "What is a decision, challenge, transition, or area of your life that you are currently trying to navigate?", required: true, type: "textarea" },
-        { name: "interest", label: "Based on the information you\u2019ve received about FRAME, what interests you most about participating in this program?", required: true, type: "textarea" },
+        { name: "navigating", label: "What is a decision, challenge, relationship, or area of uncertainty that you are currently trying to navigate?", required: true, type: "textarea" },
+        { name: "interest", label: "Based on what you know about FRAME, what interests you most about participating in the Intensive?", required: true, type: "textarea" },
       ],
     },
   ];
@@ -707,9 +759,10 @@ export default function IntensivePage() {
 
   const renderField = (f: Field) => {
     const hasError = !!errors[f.name];
+    const value = formData[f.name] || "";
     const common = {
       name: f.name,
-      value: formData[f.name] || "",
+      value,
       onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
         setField(f.name, e.target.value),
       className: `frame-input${hasError ? " frame-input-error" : ""}`,
@@ -749,6 +802,24 @@ export default function IntensivePage() {
         </label>
         {f.type === "textarea" ? (
           <textarea {...common} rows={3} />
+        ) : f.type === "select" ? (
+          <div className="frame-select-wrap">
+            <select
+              name={f.name}
+              value={value}
+              onChange={(e) => setField(f.name, e.target.value)}
+              className={`frame-select${hasError ? " frame-input-error" : ""}${value ? " frame-select-filled" : ""}`}
+              aria-invalid={hasError}
+              aria-required={f.required}
+            >
+              <option value="">Select…</option>
+              {(f.options || []).map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
         ) : (
           <input {...common} type={f.type} />
         )}
@@ -776,7 +847,7 @@ export default function IntensivePage() {
         width: "100%",
         maxWidth: "1200px",
         margin: "0 auto",
-        padding: "4vh 3vw 0 3vw",
+        padding: isMobile ? "4vh 7vw 0 7vw" : "4vh 3vw 0 3vw",
         boxSizing: "border-box",
       }}
     >
@@ -793,7 +864,7 @@ export default function IntensivePage() {
           <div
             key={i}
             style={{
-              width: "clamp(44px, 6vw, 86px)",
+              width: isMobile ? "12vw" : "clamp(44px, 6vw, 86px)",
               height: "2px",
               background: i <= step ? "#1a1a1a" : "#d6d6d6",
               transition: "background 350ms ease",
@@ -834,8 +905,9 @@ export default function IntensivePage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(260px, 1fr) minmax(0, 2.3fr)",
+            gridTemplateColumns: isMobile ? "1fr" : "minmax(260px, 1fr) minmax(0, 2.3fr)",
             columnGap: "3vw",
+            rowGap: isMobile ? "3vh" : 0,
           }}
         >
           <div>
@@ -843,7 +915,7 @@ export default function IntensivePage() {
               style={{
                 fontFamily: FONT,
                 fontWeight: 400,
-                fontSize: "clamp(24px, 2.8vw, 40px)",
+                fontSize: isMobile ? "8.5vw" : "clamp(24px, 2.8vw, 40px)",
                 lineHeight: 1.1,
                 letterSpacing: "-0.02em",
                 color: "#1a1a1a",
@@ -977,7 +1049,18 @@ export default function IntensivePage() {
         }}
       >
         <div
-          aria-label="APPLY"
+          role="button"
+          tabIndex={applyClickable ? 0 : -1}
+          aria-label="Apply - go to the application form"
+          className="apply-cta"
+          onClick={applyClickable ? scrollToApplication : undefined}
+          onKeyDown={(e) => {
+            if (!applyClickable) return;
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              scrollToApplication();
+            }
+          }}
           style={{
             display: "flex",
             alignItems: "flex-end",
@@ -986,12 +1069,15 @@ export default function IntensivePage() {
             lineHeight: 1,
             fontFamily: FONT_MED,
             fontWeight: 500,
-            fontSize: "clamp(60px, 10vw, 150px)",
+            fontSize: isMobile ? "clamp(56px, 20vw, 110px)" : "clamp(60px, 10vw, 150px)",
             letterSpacing: "-0.02em",
             textTransform: "uppercase",
             color: applyColor,
-            transition: "color 300ms ease",
+            transition: "color 300ms ease, opacity 220ms ease",
             userSelect: "none",
+            cursor: applyClickable ? "pointer" : "default",
+            pointerEvents: applyClickable ? "auto" : "none",
+            outline: "none",
           }}
         >
           {"APPLY".split("").map((ch, i) => {
@@ -1034,6 +1120,7 @@ export default function IntensivePage() {
 
   const applicationSection = (
     <section
+      ref={applySectionRef}
       style={{
         position: "relative",
         width: "100%",
@@ -1081,6 +1168,44 @@ export default function IntensivePage() {
         .frame-input::placeholder { color: #aaa; }
         .frame-input:focus { border-bottom-color: #1a1a1a; }
         .frame-input-error { border-bottom-color: #b23b3b; }
+
+        .apply-cta:hover { opacity: 0.68; }
+        .apply-cta:focus-visible { opacity: 0.68; outline: none; }
+
+        .frame-select {
+          width: 100%;
+          background: transparent;
+          border: none;
+          border-bottom: 1px solid #c8c8c8;
+          outline: none;
+          padding: 0.65rem 1.4rem 0.65rem 0;
+          font-family: 'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-weight: 300;
+          font-size: 17px;
+          letter-spacing: 0.02em;
+          color: #aaa;
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          border-radius: 0;
+          box-sizing: border-box;
+        }
+        .frame-select:focus { border-bottom-color: #1a1a1a; }
+        .frame-select-filled { color: #1a1a1a; }
+        .frame-select option { color: #1a1a1a; }
+        .frame-select-wrap { position: relative; }
+        .frame-select-wrap::after {
+          content: '';
+          position: absolute;
+          right: 4px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 0; height: 0;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 5px solid #8c8a8a;
+          pointer-events: none;
+        }
         textarea.frame-input {
           min-height: 90px;
           line-height: 1.5;
@@ -1120,11 +1245,11 @@ export default function IntensivePage() {
               style={{
                 fontFamily: FONT,
                 fontWeight: 400,
-                fontSize: "clamp(34px, 4vw, 60px)",
+                fontSize: isMobile ? "9vw" : "clamp(34px, 4vw, 60px)",
                 lineHeight: 1.05,
                 letterSpacing: "-0.02em",
                 color: "#ffffff",
-                margin: "0 0 1.5rem 0",
+                margin: isMobile ? "0 0 1.2rem 0" : "0 0 1.5rem 0",
               }}
             >
               Application received.
@@ -1133,14 +1258,16 @@ export default function IntensivePage() {
               style={{
                 fontFamily: FONT_SLT,
                 fontWeight: 300,
-                fontSize: "clamp(16px, 1.3vw, 22px)",
-                lineHeight: 1.5,
+                fontSize: isMobile ? "4.2vw" : "clamp(16px, 1.3vw, 22px)",
+                lineHeight: 1.6,
                 color: "#c8c8c8",
                 margin: 0,
-                maxWidth: "60ch",
+                maxWidth: isMobile ? "34ch" : "none",
               }}
             >
-              Thank you for your interest in the FRAME Intensive. We’ll be in touch after reviewing your submission.
+              Thank you for your interest in the FRAME Intensive.
+              {isMobile ? " " : <br />}
+              We’ll be in touch after reviewing your submission.
             </p>
           </div>
 
