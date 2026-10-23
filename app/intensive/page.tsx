@@ -20,7 +20,7 @@ const INTRO_BLOCKS: { text: string }[] = [
   },
   {
     text:
-      "The program begins with a two-part assessment to identify your FRAME Profile. From there, the focus shifts to interpreting your results, examining how underlying patterns influence your outlook, and applying those findings to your work and life. Sessions are iterative and actionable, centered on the choices, challenges, and priorities that matter most.",
+      "The program begins with a two-part assessment to identify your FRAME Profile. From there, the focus shifts to interpreting your results, examining how underlying patterns influence your outlook, and applying those findings to your work and life. Each session is iterative and actionable, centered on the choices, challenges, and priorities that matter most.",
   },
 ];
 
@@ -351,8 +351,8 @@ export default function IntensivePage() {
         </h1>
         <p style={{
           fontFamily: FONT_SLT, fontWeight: 300,
-          fontSize: "1.65vw", lineHeight: 1.25,
-          color: "#8c8a8a", margin: "0.8vw 0 0 0",
+          fontSize: "1.5vw", lineHeight: 1.25,
+          color: "#8c8a8a", margin: "0.85vw 0 0 0",
         }}>
           4 weeks to identify, explore, and integrate your<br />motivational architecture.
         </p>
@@ -383,14 +383,21 @@ export default function IntensivePage() {
     const eased = 1 - Math.pow(1 - localR, 2);
     // Travel ~80vh — enough that top-row cells start fully below the viewport.
     const yOffsetVh = (1 - eased) * 80;
+    // Once a cell has landed, drop the transform entirely. A transform (even
+    // translateY(0)) promotes the cell to its own compositing layer, which can
+    // shift text rasterization by a fraction of a pixel. Removing it means the
+    // settled grid is laid out purely by CSS grid, identical in both columns.
+    const landed = localR >= 1;
     return (
       <div
         key={idx}
         style={{
           gridColumn: w.col + 1,
           gridRow: w.row + 1,
-          transform: `translateY(${yOffsetVh}vh)`,
-          willChange: "transform",
+          alignSelf: "start",
+          ...(landed
+            ? {}
+            : { transform: `translateY(${yOffsetVh}vh)`, willChange: "transform" }),
           color: "#fff",
         }}
       >
@@ -703,7 +710,7 @@ export default function IntensivePage() {
     },
     {
       heading: "Is now the right time?",
-      intro: "The FRAME Intensive takes place over four weeks, beginning the week of November 9 and concluding the week of December 7, with a one-week break for Thanksgiving. The program includes two 90-minute assessments followed by three working sessions. You’ll have time between meetings to reflect on your insights and apply what you’re learning.",
+      intro: "The FRAME Intensive takes place over four weeks, beginning the week of November 9 and concluding the week of December 7, with a one-week break for Thanksgiving. The program includes two 90-minute assessments followed by three working sessions. You’ll have time between meetings to reflect and apply what you’re learning.",
       fields: [
         {
           name: "commitment",
