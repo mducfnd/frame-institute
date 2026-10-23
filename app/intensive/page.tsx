@@ -84,7 +84,33 @@ const sectionHeightVh = (mobile: boolean) => {
 // Mobile sticky layout: two stacked regions that each clip their own contents.
 const M_TITLE_BAND_VH = 25;                        // height of the title band
 const M_TITLE_H_VH    = 8;                         // vertical slot per title
-const M_CONTENT_H_VH  = 100 - M_TITLE_BAND_VH;     // content region = one slot
+const M_CONTENT_H_VH  = 100 - M_TITLE_BAND_VH;     // content region height
+// The two intro paragraphs each get a full region; the four sessions sit closer
+// together so they read as an agenda rather than four separate statements.
+const M_SESSION_H_VH  = 42;
+
+const mobileSlotVh = (i: number) =>
+  MOBILE_BLOCKS[i].kind === "session" ? M_SESSION_H_VH : M_CONTENT_H_VH;
+
+// Distance from the top of the stack to the centre of block i.
+const mobileBlockCenters: number[] = (() => {
+  const out: number[] = [];
+  let acc = 0;
+  for (let i = 0; i < MOBILE_BLOCKS.length; i++) {
+    out.push(acc + mobileSlotVh(i) / 2);
+    acc += mobileSlotVh(i);
+  }
+  return out;
+})();
+
+// Centre position for a fractional progress value, interpolating between blocks.
+const mobileCenterAt = (p: number) => {
+  const last = mobileBlockCenters.length - 1;
+  const i0 = Math.max(0, Math.min(last, Math.floor(p)));
+  const i1 = Math.max(0, Math.min(last, i0 + 1));
+  const t = Math.max(0, Math.min(1, p - i0));
+  return mobileBlockCenters[i0] + (mobileBlockCenters[i1] - mobileBlockCenters[i0]) * t;
+};
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -330,7 +356,7 @@ export default function IntensivePage() {
           width: "100%",
           position: "relative",
           overflow: "hidden",
-          background: "#f4f2ef",
+          background: "#ffffff",
         }}
       >
         <video
@@ -575,7 +601,7 @@ export default function IntensivePage() {
                 top: "50%",
                 left: "7vw",
                 right: "7vw",
-                transform: `translateY(calc(-${M_CONTENT_H_VH / 2}vh - ${progress * M_CONTENT_H_VH}vh))`,
+                transform: `translateY(-${mobileCenterAt(progress)}vh)`,
                 willChange: "transform",
               }}
             >
@@ -583,7 +609,7 @@ export default function IntensivePage() {
                 <div
                   key={i}
                   style={{
-                    height: `${M_CONTENT_H_VH}vh`,
+                    height: `${mobileSlotVh(i)}vh`,
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
