@@ -51,15 +51,41 @@ const SESSIONS: Session[] = [
   },
 ];
 
+// One flat list for the mobile content stack: two intro paragraphs then the
+// four sessions, each scrolling in from below and out the top in turn.
+type MobileBlock =
+  | { kind: "para"; text: string }
+  | { kind: "session"; title: string; duration: string; text: string };
+
+const MOBILE_BLOCKS: MobileBlock[] = [
+  { kind: "para", text: INTRO_BLOCKS[0].text },
+  { kind: "para", text: INTRO_BLOCKS[1].text },
+  ...SESSIONS.map((s) => ({ kind: "session" as const, ...s })),
+];
+
 // Six scroll stops total: Model (0), Program (1), + 4 session reveals (2,3,4,5)
 const STOPS = 6;
 const TITLE_H_VH = 12;
 const INTRO_H_VH = 78;
 
-const PRE_HOLD_VH = 55;
-const REVEAL_VH   = 145;
-const CONTENT_VH  = STOPS * 100;
-const SECTION_H_VH = PRE_HOLD_VH + REVEAL_VH + CONTENT_VH;
+// Scroll-section geometry, per breakpoint (all values in vh).
+//   preHold - white hold before the black burst starts
+//   reveal  - scroll distance the clip-path burst takes
+//   stop    - scroll distance per content stop
+const LAYOUT = {
+  desktop: { preHold: 55, reveal: 145, stop: 100 },
+  mobile:  { preHold: 40, reveal: 110, stop: 80 },
+};
+const sectionHeightVh = (mobile: boolean) => {
+  const L = mobile ? LAYOUT.mobile : LAYOUT.desktop;
+  return L.preHold + L.reveal + STOPS * L.stop;
+};
+
+// Mobile sticky layout: titles ride in a band at the top, content below.
+const M_TITLE_H_VH     = 8;   // vertical slot per title
+const M_TITLE_CENTER   = 20;  // vh from top where the active title sits
+const M_CONTENT_H_VH   = 58;  // vertical slot per content block
+const M_CONTENT_CENTER = 70;  // vh from top where the active block sits
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -83,9 +109,22 @@ export default function IntensivePage() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Re-run on breakpoint change: the mobile and desktop heroes are different
+  // <video> elements, so the one mounted after a swap needs its own play() call.
   useEffect(() => {
-    heroVideoRef.current?.play().catch(() => {});
-  }, []);
+    const v = heroVideoRef.current;
+    if (!v) return;
+    const tryPlay = () => {
+      v.play().catch(() => {});
+    };
+    tryPlay();
+    v.addEventListener("loadeddata", tryPlay);
+    v.addEventListener("canplay", tryPlay);
+    return () => {
+      v.removeEventListener("loadeddata", tryPlay);
+      v.removeEventListener("canplay", tryPlay);
+    };
+  }, [isMobile]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -189,7 +228,9 @@ export default function IntensivePage() {
   };
 
   useEffect(() => {
-    if (reducedMotion || isMobile) return;
+    if (reducedMotion) return;
+    const L = isMobile ? LAYOUT.mobile : LAYOUT.desktop;
+    const SECTION_H = sectionHeightVh(isMobile);
     let raf = 0;
     let running = true;
     // Smoothed (scrubbed) values so a fast scroll still plays the burst
@@ -213,12 +254,12 @@ export default function IntensivePage() {
       }
       const scrolled = clamp(-rect.top, 0, total);
 
-      const stickyVh = SECTION_H_VH - 100;
+      const stickyVh = SECTION_H - 100;
       const scrolledVh = (scrolled / total) * stickyVh;
 
       // --- Reveal/burst target ---
-      const revealStart = PRE_HOLD_VH;
-      const revealEnd = PRE_HOLD_VH + REVEAL_VH;
+      const revealStart = L.preHold;
+      const revealEnd = L.preHold + L.reveal;
       const r = clamp((scrolledVh - revealStart) / (revealEnd - revealStart), 0, 1);
       // Gentler than before (was pow 2.4) so it opens rather than snaps.
       const revealTarget = 1 - Math.pow(1 - r, 1.7);
@@ -287,7 +328,7 @@ export default function IntensivePage() {
           autoPlay loop muted playsInline
           style={{
             width: "100%", height: "100%",
-            objectFit: "cover", objectPosition: "center",
+            objectFit: "cover", objectPosition: "right center",
             display: "block",
           }}
           src="/intensive-hero.mp4"
@@ -315,7 +356,7 @@ export default function IntensivePage() {
           fontSize: "4.2vw", lineHeight: 1.3,
           color: "#8c8a8a", margin: "4vw 0 0 0",
         }}>
-          4 weeks to identify, explore, and integrate your motivational architecture.
+          4 weeks to identify, explore, and integrate<br />your motivational architecture.
         </p>
       </div>
     </section>
@@ -428,7 +469,7 @@ export default function IntensivePage() {
       style={{
         position: "relative",
         width: "100%",
-        height: `${SECTION_H_VH}vh`,
+        height: `${sectionHeightVh(isMobile)}vh`,
         background: "#ffffff",
       }}
     >
@@ -440,12 +481,104 @@ export default function IntensivePage() {
           width: "100%",
           overflow: "hidden",
           background: BLACK,
-          display: "flex",
+          display: isMobile ? "block" : "flex",
           clipPath: `circle(${clipRadius}% at 50% 50%)`,
           WebkitClipPath: `circle(${clipRadius}% at 50% 50%)`,
           willChange: "clip-path",
         }}
       >
+        {isMobile ? (
+          <>
+        {/* ---- Mobile: titles band on top, content stack below ---- */}
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+          {TITLES.map((t, i) => {
+            const stepOffset = titleProgress - i;
+            const yRelCenter = -stepOffset * M_TITLE_H_VH;
+            const revealProg = clamp(stepOffset + 1, 0, 1);
+            const eased = 1 - Math.pow(1 - revealProg, 2);
+            const slideOffsetVh = (1 - eased) * (M_TITLE_H_VH * 0.6);
+            const isActive = i === activeTitleIdx;
+            return (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  top: `${M_TITLE_CENTER}vh`,
+                  left: "7vw",
+                  right: "7vw",
+                  transform: `translate(0, calc(-50% + ${yRelCenter + slideOffsetVh}vh))`,
+                  opacity: eased,
+                  fontFamily: FONT,
+                  fontWeight: 400,
+                  fontSize: "8vw",
+                  lineHeight: 1,
+                  letterSpacing: "-0.02em",
+                  color: isActive ? "#ffffff" : "rgba(255,255,255,0.25)",
+                  transition: "color 300ms ease",
+                  whiteSpace: "nowrap",
+                  willChange: "transform, opacity",
+                }}
+              >
+                {t}
+              </div>
+            );
+          })}
+
+          <div
+            style={{
+              position: "absolute",
+              top: `${M_CONTENT_CENTER}vh`,
+              left: "7vw",
+              right: "7vw",
+              transform: `translateY(calc(-${M_CONTENT_H_VH / 2}vh - ${progress * M_CONTENT_H_VH}vh))`,
+              willChange: "transform",
+            }}
+          >
+            {MOBILE_BLOCKS.map((b, i) => (
+              <div
+                key={i}
+                style={{
+                  height: `${M_CONTENT_H_VH}vh`,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                }}
+              >
+                {b.kind === "para" ? (
+                  <p style={{
+                    fontFamily: FONT_SLT, fontWeight: 300,
+                    fontSize: "4.2vw", lineHeight: 1.45,
+                    color: "#f2f2f2", margin: 0,
+                  }}>
+                    {b.text}
+                  </p>
+                ) : (
+                  <>
+                    <h3 style={{
+                      fontFamily: FONT, fontWeight: 400,
+                      fontSize: "5.6vw", lineHeight: 1.15,
+                      letterSpacing: "-0.01em",
+                      color: "#ffffff", margin: 0,
+                    }}>{b.title}</h3>
+                    <p style={{
+                      fontFamily: FONT_SLT, fontWeight: 300, fontStyle: "italic",
+                      fontSize: "3.4vw", color: "#9a9a9a",
+                      margin: "0.6em 0 1.1em 0",
+                    }}>{b.duration}</p>
+                    <p style={{
+                      fontFamily: FONT_SLT, fontWeight: 300,
+                      fontSize: "4vw", lineHeight: 1.45,
+                      color: "#f2f2f2", margin: 0,
+                    }}>{b.text}</p>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+          </>
+        ) : (
+          <>
         {/* Left column: titles */}
         <div style={{
           flex: "0 0 50%", height: "100%",
@@ -533,6 +666,8 @@ export default function IntensivePage() {
             {SESSIONS.map((s, i) => renderSessionCell(s, i))}
           </div>
         </div>
+          </>
+        )}
       </div>
     </section>
   );
@@ -625,36 +760,6 @@ export default function IntensivePage() {
       document.body.removeAttribute("data-intensive-hide-nav");
     };
   }, [inDark, submitStatus]);
-
-  // Mobile: detect whether the static dark section is in viewport, to hide the nav.
-  useEffect(() => {
-    if (!isMobile) return;
-    let raf = 0;
-    let ticking = false;
-    const check = () => {
-      ticking = false;
-      const el = staticSectionRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      // Treat "in dark" as: the section occupies most of the viewport.
-      const h = window.innerHeight;
-      const covers = rect.top < h * 0.4 && rect.bottom > h * 0.6;
-      setInDark(covers);
-    };
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      raf = requestAnimationFrame(check);
-    };
-    check();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [isMobile]);
 
   // ---------- APPLY transition phases ----------
   // Wrapper is 260vh with a 100vh sticky, so the pin lasts for 160vh of scroll
@@ -854,7 +959,7 @@ export default function IntensivePage() {
         width: "100%",
         maxWidth: "1200px",
         margin: "0 auto",
-        padding: isMobile ? "4vh 7vw 0 7vw" : "4vh 3vw 0 3vw",
+        padding: isMobile ? "13vh 7vw 0 7vw" : "4vh 3vw 0 3vw",
         boxSizing: "border-box",
       }}
     >
@@ -1219,7 +1324,7 @@ export default function IntensivePage() {
         }
       `}</style>
       {hero}
-      {reducedMotion || isMobile ? staticSection : scrollSection}
+      {reducedMotion ? staticSection : scrollSection}
       {transitionSection}
       {applicationSection}
 
