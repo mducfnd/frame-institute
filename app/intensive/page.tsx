@@ -82,35 +82,15 @@ const sectionHeightVh = (mobile: boolean) => {
 };
 
 // Mobile sticky layout: two stacked regions that each clip their own contents.
-const M_TITLE_BAND_VH = 25;                        // height of the title band
-const M_TITLE_H_VH    = 8;                         // vertical slot per title
-const M_CONTENT_H_VH  = 100 - M_TITLE_BAND_VH;     // content region height
-// The two intro paragraphs each get a full region; the four sessions sit closer
-// together so they read as an agenda rather than four separate statements.
-const M_SESSION_H_VH  = 42;
+const M_TITLE_BAND_VH = 25;   // height of the title band
+const M_TITLE_H_VH    = 8;    // vertical slot per title
 
-const mobileSlotVh = (i: number) =>
-  MOBILE_BLOCKS[i].kind === "session" ? M_SESSION_H_VH : M_CONTENT_H_VH;
+// Blocks sit in normal flow and are spaced by margin, so the gap is literal and
+// uniform rather than a by-product of slot height minus content height.
+const M_GAP_SECTION_VH = 34;  // after THE MODEL's paragraph (a section break)
+const M_GAP_ITEM_VH    = 16;  // THE INTENSIVE's paragraph and between sessions
 
-// Distance from the top of the stack to the centre of block i.
-const mobileBlockCenters: number[] = (() => {
-  const out: number[] = [];
-  let acc = 0;
-  for (let i = 0; i < MOBILE_BLOCKS.length; i++) {
-    out.push(acc + mobileSlotVh(i) / 2);
-    acc += mobileSlotVh(i);
-  }
-  return out;
-})();
-
-// Centre position for a fractional progress value, interpolating between blocks.
-const mobileCenterAt = (p: number) => {
-  const last = mobileBlockCenters.length - 1;
-  const i0 = Math.max(0, Math.min(last, Math.floor(p)));
-  const i1 = Math.max(0, Math.min(last, i0 + 1));
-  const t = Math.max(0, Math.min(1, p - i0));
-  return mobileBlockCenters[i0] + (mobileBlockCenters[i1] - mobileBlockCenters[i0]) * t;
-};
+const mobileGapVh = (i: number) => (i === 0 ? M_GAP_SECTION_VH : M_GAP_ITEM_VH);
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -322,6 +302,42 @@ export default function IntensivePage() {
     };
   }, [reducedMotion, isMobile]);
 
+  // Mobile content stack: measure each block's centre so spacing comes from real
+  // layout (margins + natural height) instead of assumed slot sizes.
+  const mobileBlockRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [mobileCenters, setMobileCenters] = useState<number[]>([]);
+
+  useEffect(() => {
+    if (!isMobile || reducedMotion) return;
+    const measure = () => {
+      setMobileCenters(
+        mobileBlockRefs.current.map((el) =>
+          el ? el.offsetTop + el.offsetHeight / 2 : 0
+        )
+      );
+    };
+    measure();
+    // Re-measure once fonts land and after first paint settles.
+    const t = window.setTimeout(measure, 250);
+    window.addEventListener("resize", measure);
+    const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
+    fonts?.ready?.then(measure);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", measure);
+    };
+  }, [isMobile, reducedMotion]);
+
+  // Centre offset (px) for a fractional progress value.
+  const mobileCenterPx = (p: number) => {
+    if (mobileCenters.length === 0) return 0;
+    const last = mobileCenters.length - 1;
+    const i0 = Math.max(0, Math.min(last, Math.floor(p)));
+    const i1 = Math.max(0, Math.min(last, i0 + 1));
+    const t = Math.max(0, Math.min(1, p - i0));
+    return mobileCenters[i0] + (mobileCenters[i1] - mobileCenters[i0]) * t;
+  };
+
   const titleProgress = Math.min(progress, 2);
   const activeTitleIdx =
     titleProgress < 0.5 ? 0 : titleProgress < 1.5 ? 1 : 2;
@@ -376,6 +392,7 @@ export default function IntensivePage() {
             objectPosition: "right center",
             display: "block",
           }}
+          poster="/intensive-hero-poster.jpg"
           src="/intensive-hero.mp4"
         />
       </div>
@@ -455,6 +472,7 @@ export default function IntensivePage() {
             objectFit: "cover", objectPosition: "right center",
             display: "block",
           }}
+          poster="/intensive-hero-poster.jpg"
           src="/intensive-hero.mp4"
         />
       </div>
@@ -601,19 +619,17 @@ export default function IntensivePage() {
                 top: "50%",
                 left: "7vw",
                 right: "7vw",
-                transform: `translateY(-${mobileCenterAt(progress)}vh)`,
+                transform: `translateY(-${mobileCenterPx(progress)}px)`,
                 willChange: "transform",
               }}
             >
               {MOBILE_BLOCKS.map((b, i) => (
                 <div
                   key={i}
-                  style={{
-                    height: `${mobileSlotVh(i)}vh`,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
+                  ref={(el) => {
+                    mobileBlockRefs.current[i] = el;
                   }}
+                  style={{ marginBottom: `${mobileGapVh(i)}vh` }}
                 >
                   {b.kind === "para" ? (
                     <p style={{
@@ -630,7 +646,7 @@ export default function IntensivePage() {
                         fontSize: "5.6vw", lineHeight: 1.15,
                         letterSpacing: "-0.01em",
                         color: "#ffffff", margin: 0,
-                      }}>{b.title}</h3>
+                      }}>{i - 1}. {b.title}</h3>
                       <p style={{
                         fontFamily: FONT_SLT, fontWeight: 300, fontStyle: "italic",
                         fontSize: "3.4vw", color: "#9a9a9a",
