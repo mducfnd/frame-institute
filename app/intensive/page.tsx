@@ -81,11 +81,10 @@ const sectionHeightVh = (mobile: boolean) => {
   return L.preHold + L.reveal + STOPS * L.stop;
 };
 
-// Mobile sticky layout: titles ride in a band at the top, content below.
-const M_TITLE_H_VH     = 8;   // vertical slot per title
-const M_TITLE_CENTER   = 20;  // vh from top where the active title sits
-const M_CONTENT_H_VH   = 58;  // vertical slot per content block
-const M_CONTENT_CENTER = 70;  // vh from top where the active block sits
+// Mobile sticky layout: two stacked regions that each clip their own contents.
+const M_TITLE_BAND_VH = 25;                        // height of the title band
+const M_TITLE_H_VH    = 8;                         // vertical slot per title
+const M_CONTENT_H_VH  = 100 - M_TITLE_BAND_VH;     // content region = one slot
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
@@ -115,6 +114,8 @@ export default function IntensivePage() {
     const v = heroVideoRef.current;
     if (!v) return;
     const tryPlay = () => {
+      v.muted = true;
+      v.playsInline = true;
       v.play().catch(() => {});
     };
     tryPlay();
@@ -322,13 +323,31 @@ export default function IntensivePage() {
         flexDirection: "column",
       }}
     >
-      <div style={{ flex: "0 0 42vh", overflow: "hidden" }}>
+      <div
+        style={{
+          flex: "0 0 auto",
+          height: "42vh",
+          width: "100%",
+          position: "relative",
+          overflow: "hidden",
+          background: "#f4f2ef",
+        }}
+      >
         <video
           ref={heroVideoRef}
-          autoPlay loop muted playsInline
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
           style={{
-            width: "100%", height: "100%",
-            objectFit: "cover", objectPosition: "right center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "right center",
             display: "block",
           }}
           src="/intensive-hero.mp4"
@@ -489,91 +508,118 @@ export default function IntensivePage() {
       >
         {isMobile ? (
           <>
-        {/* ---- Mobile: titles band on top, content stack below ---- */}
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
-          {TITLES.map((t, i) => {
-            const stepOffset = titleProgress - i;
-            const yRelCenter = -stepOffset * M_TITLE_H_VH;
-            const revealProg = clamp(stepOffset + 1, 0, 1);
-            const eased = 1 - Math.pow(1 - revealProg, 2);
-            const slideOffsetVh = (1 - eased) * (M_TITLE_H_VH * 0.6);
-            const isActive = i === activeTitleIdx;
-            return (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  top: `${M_TITLE_CENTER}vh`,
-                  left: "7vw",
-                  right: "7vw",
-                  transform: `translate(0, calc(-50% + ${yRelCenter + slideOffsetVh}vh))`,
-                  opacity: eased,
-                  fontFamily: FONT,
-                  fontWeight: 400,
-                  fontSize: "8vw",
-                  lineHeight: 1,
-                  letterSpacing: "-0.02em",
-                  color: isActive ? "#ffffff" : "rgba(255,255,255,0.25)",
-                  transition: "color 300ms ease",
-                  whiteSpace: "nowrap",
-                  willChange: "transform, opacity",
-                }}
-              >
-                {t}
-              </div>
-            );
-          })}
-
+        {/* ---- Mobile: title band on top, content region below ---- */}
+        {/* Each region clips its own contents, so titles and copy can never overlap. */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Title band */}
           <div
             style={{
-              position: "absolute",
-              top: `${M_CONTENT_CENTER}vh`,
-              left: "7vw",
-              right: "7vw",
-              transform: `translateY(calc(-${M_CONTENT_H_VH / 2}vh - ${progress * M_CONTENT_H_VH}vh))`,
-              willChange: "transform",
+              flex: "0 0 auto",
+              height: `${M_TITLE_BAND_VH}vh`,
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            {MOBILE_BLOCKS.map((b, i) => (
-              <div
-                key={i}
-                style={{
-                  height: `${M_CONTENT_H_VH}vh`,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                }}
-              >
-                {b.kind === "para" ? (
-                  <p style={{
-                    fontFamily: FONT_SLT, fontWeight: 300,
-                    fontSize: "4.2vw", lineHeight: 1.45,
-                    color: "#f2f2f2", margin: 0,
-                  }}>
-                    {b.text}
-                  </p>
-                ) : (
-                  <>
-                    <h3 style={{
-                      fontFamily: FONT, fontWeight: 400,
-                      fontSize: "5.6vw", lineHeight: 1.15,
-                      letterSpacing: "-0.01em",
-                      color: "#ffffff", margin: 0,
-                    }}>{b.title}</h3>
-                    <p style={{
-                      fontFamily: FONT_SLT, fontWeight: 300, fontStyle: "italic",
-                      fontSize: "3.4vw", color: "#9a9a9a",
-                      margin: "0.6em 0 1.1em 0",
-                    }}>{b.duration}</p>
+            {TITLES.map((t, i) => {
+              const stepOffset = titleProgress - i;
+              const yRelCenter = -stepOffset * M_TITLE_H_VH;
+              const revealProg = clamp(stepOffset + 1, 0, 1);
+              const eased = 1 - Math.pow(1 - revealProg, 2);
+              const slideOffsetVh = (1 - eased) * (M_TITLE_H_VH * 0.6);
+              const isActive = i === activeTitleIdx;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "7vw",
+                    right: "7vw",
+                    transform: `translate(0, calc(-50% + ${yRelCenter + slideOffsetVh}vh))`,
+                    opacity: eased,
+                    fontFamily: FONT,
+                    fontWeight: 400,
+                    fontSize: "8vw",
+                    lineHeight: 1,
+                    letterSpacing: "-0.02em",
+                    color: isActive ? "#ffffff" : "rgba(255,255,255,0.25)",
+                    transition: "color 300ms ease",
+                    whiteSpace: "nowrap",
+                    willChange: "transform, opacity",
+                  }}
+                >
+                  {t}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Content region — blocks scroll up through it, one at a time */}
+          <div
+            style={{
+              flex: "1 1 auto",
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "7vw",
+                right: "7vw",
+                transform: `translateY(calc(-${M_CONTENT_H_VH / 2}vh - ${progress * M_CONTENT_H_VH}vh))`,
+                willChange: "transform",
+              }}
+            >
+              {MOBILE_BLOCKS.map((b, i) => (
+                <div
+                  key={i}
+                  style={{
+                    height: `${M_CONTENT_H_VH}vh`,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
+                  {b.kind === "para" ? (
                     <p style={{
                       fontFamily: FONT_SLT, fontWeight: 300,
-                      fontSize: "4vw", lineHeight: 1.45,
+                      fontSize: "4.2vw", lineHeight: 1.45,
                       color: "#f2f2f2", margin: 0,
-                    }}>{b.text}</p>
-                  </>
-                )}
-              </div>
-            ))}
+                    }}>
+                      {b.text}
+                    </p>
+                  ) : (
+                    <>
+                      <h3 style={{
+                        fontFamily: FONT, fontWeight: 400,
+                        fontSize: "5.6vw", lineHeight: 1.15,
+                        letterSpacing: "-0.01em",
+                        color: "#ffffff", margin: 0,
+                      }}>{b.title}</h3>
+                      <p style={{
+                        fontFamily: FONT_SLT, fontWeight: 300, fontStyle: "italic",
+                        fontSize: "3.4vw", color: "#9a9a9a",
+                        margin: "0.6em 0 1.1em 0",
+                      }}>{b.duration}</p>
+                      <p style={{
+                        fontFamily: FONT_SLT, fontWeight: 300,
+                        fontSize: "4vw", lineHeight: 1.45,
+                        color: "#f2f2f2", margin: 0,
+                      }}>{b.text}</p>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
           </>
