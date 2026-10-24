@@ -425,7 +425,7 @@ export default function IntensivePage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          padding: "0 7vw",
+          padding: "0 7vw 13vh 7vw",
           boxSizing: "border-box",
         }}
       >
