@@ -119,17 +119,40 @@ export default function IntensivePage() {
   useEffect(() => {
     const v = heroVideoRef.current;
     if (!v) return;
-    const tryPlay = () => {
+
+    let settled = false;
+    const GESTURES = ["touchstart", "pointerdown", "click", "scroll", "keydown"];
+
+    const detach = () => {
+      GESTURES.forEach((e) => window.removeEventListener(e, attempt));
+    };
+
+    const attempt = () => {
+      if (settled) return;
       v.muted = true;
       v.playsInline = true;
-      v.play().catch(() => {});
+      const p = v.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => {
+          settled = true;
+          detach();
+        }).catch(() => {
+          /* autoplay refused — a later gesture will retry */
+        });
+      }
     };
-    tryPlay();
-    v.addEventListener("loadeddata", tryPlay);
-    v.addEventListener("canplay", tryPlay);
+
+    attempt();
+    v.addEventListener("loadeddata", attempt);
+    v.addEventListener("canplay", attempt);
+    // Some mobile browsers refuse programmatic autoplay but allow playback to
+    // start inside a user gesture. Retry on the first interaction, then stop.
+    GESTURES.forEach((e) => window.addEventListener(e, attempt, { passive: true }));
+
     return () => {
-      v.removeEventListener("loadeddata", tryPlay);
-      v.removeEventListener("canplay", tryPlay);
+      detach();
+      v.removeEventListener("loadeddata", attempt);
+      v.removeEventListener("canplay", attempt);
     };
   }, [isMobile]);
 
@@ -393,7 +416,7 @@ export default function IntensivePage() {
             display: "block",
           }}
           poster="/intensive-hero-poster.jpg"
-          src="/intensive-hero.mp4"
+          src="/intensive-hero-v2.mp4"
         />
       </div>
       <div
@@ -473,7 +496,7 @@ export default function IntensivePage() {
             display: "block",
           }}
           poster="/intensive-hero-poster.jpg"
-          src="/intensive-hero.mp4"
+          src="/intensive-hero-v2.mp4"
         />
       </div>
     </section>
