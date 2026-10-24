@@ -94,6 +94,26 @@ const mobileGapVh = (i: number) => (i === 0 ? M_GAP_SECTION_VH : M_GAP_ITEM_VH);
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
+// --- Field validation, matching the rules used on michaelparrishdudell.com ---
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+const validateEmail = (v: string): string | null =>
+  EMAIL_RE.test(v.trim()) ? null : "Please enter a valid email address.";
+
+// 7-15 digits, ignoring formatting; rejects runs of a single repeated digit.
+const validatePhone = (v: string): string | null => {
+  const d = v.replace(/\D/g, "");
+  if (d.length < 7 || d.length > 15) return "Please enter a valid phone number.";
+  if (/^(\d)\1{6,}$/.test(d)) return "Please enter a valid phone number.";
+  return null;
+};
+
+const minLength = (n: number, message: string) => (v: string): string | null =>
+  v.trim().length >= n ? null : message;
+
+// Bots submit instantly; a real person cannot fill five steps in two seconds.
+const MIN_FILL_MS = 2000;
+
 // Reveal windows for the four session cells (in progress units, 0..5)
 // Grid position: 0=TL, 1=BL, 2=TR, 3=BR
 const SESSION_WINDOWS: { start: number; end: number; col: 0 | 1; row: 0 | 1 }[] = [
@@ -218,11 +238,17 @@ export default function IntensivePage() {
   }, [reducedMotion]);
 
   // ---------- APPLICATION FORM state ----------
-  const FORMSPREE_URL = "https://formspree.io/f/xvkgyajl";
+  const FORMSPREE_URL = "https://formspree.io/f/mdeekdey";
   type AppFormData = Record<string, string>;
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState<AppFormData>({});
-  const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const honeypotRef = useRef<HTMLInputElement>(null);
+  const loadTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    loadTimeRef.current = Date.now();
+  }, []);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const applicationRef = useRef<HTMLDivElement>(null);
   const applySectionRef = useRef<HTMLElement>(null);
@@ -255,6 +281,22 @@ export default function IntensivePage() {
         return n;
       });
     }
+  };
+
+  // Human-readable keys so the Formspree email reads as questions, not slugs.
+  const FIELD_LABELS: Record<string, string> = {
+    full_name: "Full Name",
+    email: "Email Address",
+    mobile: "Mobile Phone Number",
+    company: "Company / Organization",
+    role: "Current Role / Title",
+    work_description: "What they do",
+    discovery: "How they heard about the FRAME Intensive",
+    referrer: "Referred by",
+    commitment: "Can commit to the full four weeks",
+    scheduling: "Scheduling constraints",
+    navigating: "Currently navigating",
+    interest: "What interests them most",
   };
 
   useEffect(() => {
@@ -897,6 +939,10 @@ export default function IntensivePage() {
     type: "text" | "email" | "tel" | "textarea" | "select";
     options?: string[];
     hint?: string;
+    autoComplete?: string;
+    placeholder?: string;
+    // Runs after the required check; return an error message or null.
+    validate?: (value: string) => string | null;
   };
   type Step = { heading: string; intro?: string; fields: Field[] };
 
@@ -904,9 +950,21 @@ export default function IntensivePage() {
     {
       heading: "First, the essentials.",
       fields: [
-        { name: "full_name", label: "Full Name", required: true, type: "text" },
-        { name: "email", label: "Email Address", required: true, type: "email" },
-        { name: "mobile", label: "Mobile Phone Number", required: true, type: "tel" },
+        {
+          name: "full_name", label: "Full Name", required: true, type: "text",
+          autoComplete: "name", placeholder: "Jane Smith",
+          validate: minLength(2, "Please enter your full name."),
+        },
+        {
+          name: "email", label: "Email Address", required: true, type: "email",
+          autoComplete: "email", placeholder: "jane@example.com",
+          validate: validateEmail,
+        },
+        {
+          name: "mobile", label: "Mobile Phone Number", required: true, type: "tel",
+          autoComplete: "tel", placeholder: "+1 (555) 000-0000",
+          validate: validatePhone,
+        },
       ],
     },
     {
@@ -914,7 +972,7 @@ export default function IntensivePage() {
       fields: [
         { name: "company", label: "Company / Organization", required: true, type: "text" },
         { name: "role", label: "Current Role / Title", required: true, type: "text" },
-        { name: "work_description", label: "Briefly describe what you do.", required: true, type: "textarea" },
+        { name: "work_description", label: "Briefly describe what you do.", required: true, type: "textarea", validate: minLength(10, "Please tell us a little about what you do."), },
       ],
     },
     {
@@ -946,19 +1004,23 @@ export default function IntensivePage() {
     {
       heading: "What would you like to explore?",
       fields: [
-        { name: "navigating", label: "What is a decision, challenge, relationship, or area of uncertainty that you are currently trying to navigate?", required: true, type: "textarea" },
-        { name: "interest", label: "Based on what you know about FRAME, what interests you most about participating in the Intensive?", required: true, type: "textarea" },
+        { name: "navigating", label: "What is a decision, challenge, relationship, or area of uncertainty that you are currently trying to navigate?", required: true, type: "textarea", validate: minLength(10, "Please share a little more detail."), },
+        { name: "interest", label: "Based on what you know about FRAME, what interests you most about participating in the Intensive?", required: true, type: "textarea", validate: minLength(10, "Please share a little more detail."), },
       ],
     },
   ];
 
   const validateStep = (idx: number): boolean => {
     const stepFields = STEPS[idx].fields;
-    const newErrors: Record<string, boolean> = {};
+    const newErrors: Record<string, string> = {};
     for (const f of stepFields) {
-      if (f.required && !(formData[f.name] || "").trim()) {
-        newErrors[f.name] = true;
+      const raw = (formData[f.name] || "").trim();
+      if (!raw) {
+        if (f.required) newErrors[f.name] = "This field is required.";
+        continue; // nothing to validate in an empty optional field
       }
+      const msg = f.validate ? f.validate(raw) : null;
+      if (msg) newErrors[f.name] = msg;
     }
     setErrors((p) => ({ ...p, ...newErrors }));
     return Object.keys(newErrors).length === 0;
@@ -971,17 +1033,60 @@ export default function IntensivePage() {
 
   const handleSubmit = async () => {
     if (!validateStep(step)) return;
-    // Formspree wiring removed for now — jump straight to the success overlay.
-    // When ready to re-enable, POST formData to FORMSPREE_URL and setSubmitStatus based on the response.
+
+    // Honeypot: a hidden field no human can see. If it's filled, a bot did it —
+    // show the normal success state so the bot gets no useful feedback, and send
+    // nothing. Formspree also discards `_gotcha` server-side as a second line.
+    if (honeypotRef.current?.value) {
+      setSubmitStatus("success");
+      return;
+    }
+
+    // Timing trap: nobody completes five steps in under two seconds.
+    if (Date.now() - loadTimeRef.current < MIN_FILL_MS) {
+      setSubmitStatus("success");
+      return;
+    }
+
     setSubmitStatus("submitting");
-    setTimeout(() => setSubmitStatus("success"), 250);
+    try {
+      const fd = new FormData();
+      // Readable labels so the email reads as questions rather than field slugs.
+      Object.entries(formData).forEach(([k, v]) => {
+        const value = (v ?? "").trim();
+        if (!value) return;
+        fd.append(FIELD_LABELS[k] || k, value);
+      });
+      const applicant = (formData.full_name || "").trim();
+      fd.append("_subject", `FRAME Intensive Application${applicant ? ` — ${applicant}` : ""}`);
+      // Lets you hit reply straight to the applicant.
+      if (formData.email) fd.append("_replyto", formData.email.trim());
+      fd.append("_gotcha", "");
+
+      const res = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        body: fd,
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        setSubmitStatus("success");
+      } else {
+        const detail = await res.text().catch(() => "<unreadable>");
+        console.error("Intensive application submit failed:", res.status, detail);
+        setSubmitStatus("error");
+      }
+    } catch (err) {
+      console.error("Intensive application submit exception:", err);
+      setSubmitStatus("error");
+    }
   };
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
   const renderField = (f: Field) => {
-    const hasError = !!errors[f.name];
+    const errorMsg = errors[f.name];
+    const hasError = !!errorMsg;
     const value = formData[f.name] || "";
     const common = {
       name: f.name,
@@ -991,6 +1096,8 @@ export default function IntensivePage() {
       className: `frame-input${hasError ? " frame-input-error" : ""}`,
       "aria-invalid": hasError,
       "aria-required": f.required,
+      autoComplete: f.autoComplete,
+      placeholder: f.placeholder,
     };
     return (
       <div key={f.name} style={{ marginBottom: "1.5rem" }}>
@@ -1044,10 +1151,15 @@ export default function IntensivePage() {
             </select>
           </div>
         ) : (
-          <input {...common} type={f.type} />
+          <input
+            {...common}
+            type={f.type}
+            inputMode={f.type === "tel" ? "tel" : f.type === "email" ? "email" : undefined}
+          />
         )}
         {hasError && (
           <div
+            role="alert"
             style={{
               fontFamily: FONT_SLT,
               fontWeight: 300,
@@ -1056,7 +1168,7 @@ export default function IntensivePage() {
               marginTop: "0.4rem",
             }}
           >
-            This field is required.
+            {errorMsg}
           </div>
         )}
       </div>
@@ -1165,6 +1277,24 @@ export default function IntensivePage() {
               </p>
             )}
             {current.fields.map(renderField)}
+
+            {/* Honeypot — invisible to people, irresistible to bots. */}
+            <input
+              ref={honeypotRef}
+              type="text"
+              name="_gotcha"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                left: "-9999px",
+                width: "1px",
+                height: "1px",
+                opacity: 0,
+                pointerEvents: "none",
+              }}
+            />
 
             {submitStatus === "error" && (
               <div
