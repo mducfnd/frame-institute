@@ -467,7 +467,7 @@ export default function IntensivePage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          padding: "0 7vw 13vh 7vw",
+          padding: "0 7vw 3vh 7vw",
           boxSizing: "border-box",
         }}
       >
@@ -485,6 +485,29 @@ export default function IntensivePage() {
         }}>
           4 weeks to identify, explore, and integrate<br />your motivational architecture.
         </p>
+
+        {/* Scroll cue — same chevron as the homepage hero, blinking on the
+            footer's rhythm but at a lower ceiling so it stays in the background. */}
+        <div
+          aria-hidden="true"
+          style={{
+            alignSelf: "center",
+            marginTop: "5vh",
+            lineHeight: 0,
+            pointerEvents: "none",
+            animation: "heroScrollCue 1.6s ease-in-out infinite",
+          }}
+        >
+          <svg width="20" height="12" viewBox="0 0 28 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M1 1L14 15.5L27 1"
+              stroke="#1a1a1a"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
       </div>
     </section>
   ) : (
@@ -1521,6 +1544,11 @@ export default function IntensivePage() {
         .frame-input::placeholder { color: #aaa; }
         .frame-input:focus { border-bottom-color: #1a1a1a; }
         .frame-input-error { border-bottom-color: #b23b3b; }
+
+        @keyframes heroScrollCue {
+          0%, 42%, 100% { opacity: 0.5; }
+          50%, 92%      { opacity: 0.12; }
+        }
 
         .apply-cta:hover { opacity: 0.68; }
         .apply-cta:focus-visible { opacity: 0.68; outline: none; }
