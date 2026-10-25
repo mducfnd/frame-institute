@@ -114,6 +114,11 @@ const minLength = (n: number, message: string) => (v: string): string | null =>
 // Bots submit instantly; a real person cannot fill five steps in two seconds.
 const MIN_FILL_MS = 2000;
 
+// The fixed NavBar sits at top:1rem and is ~39-41px tall, so its bottom edge is
+// ~55-57px down. Everything that needs to clear it is measured in px for that
+// reason — a vh value shrinks with the visible viewport and stops clearing.
+const NAV_CLEARANCE_PX = 72;
+
 // Reveal windows for the four session cells (in progress units, 0..5)
 // Grid position: 0=TL, 1=BL, 2=TR, 3=BR
 const SESSION_WINDOWS: { start: number; end: number; col: 0 | 1; row: 0 | 1 }[] = [
@@ -1205,17 +1210,24 @@ export default function IntensivePage() {
         width: "100%",
         maxWidth: "1200px",
         margin: "0 auto",
-        padding: isMobile ? "13vh 7vw 0 7vw" : "4vh 3vw 0 3vw",
+        padding: isMobile ? "clamp(84px, 12vh, 118px) 7vw 0 7vw" : "clamp(40px, 4vh, 72px) 3vw 0 3vw",
         boxSizing: "border-box",
       }}
     >
-      {/* Progress bar */}
+      {/* Progress bar — sticks just below the fixed nav, so no amount of
+          scrolling (or browser-chrome resizing) can push it into the logo. */}
       <div
         style={{
+          position: "sticky",
+          top: NAV_CLEARANCE_PX,
+          zIndex: 5,
+          background: "#ffffff",
           display: "flex",
           justifyContent: "center",
           gap: "10px",
-          marginBottom: "13vh",
+          paddingTop: "12px",
+          paddingBottom: "12px",
+          marginBottom: isMobile ? "8vh" : "11vh",
         }}
       >
         {STEPS.map((_, i) => (
