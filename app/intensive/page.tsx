@@ -114,10 +114,13 @@ const minLength = (n: number, message: string) => (v: string): string | null =>
 // Bots submit instantly; a real person cannot fill five steps in two seconds.
 const MIN_FILL_MS = 2000;
 
-// The fixed NavBar sits at top:1rem and is ~39-41px tall, so its bottom edge is
-// ~55-57px down. Everything that needs to clear it is measured in px for that
-// reason — a vh value shrinks with the visible viewport and stops clearing.
-const NAV_CLEARANCE_PX = 72;
+// Fallback only. The NavBar is sized in rem (`top: 1rem`, height `calc(1.3rem + ...)`),
+// so it grows with the device's text-size setting. Anything that has to clear it
+// is measured from the live element at runtime rather than hardcoded — see
+// useNavClearance below. A vh value is wrong for the same reason in reverse:
+// it shrinks with the visible viewport while the nav stays put.
+const NAV_CLEARANCE_FALLBACK_PX = 72;
+const NAV_GAP_PX = 22; // breathing room between the nav and whatever sits under it
 
 // Reveal windows for the four session cells (in progress units, 0..5)
 // Grid position: 0=TL, 1=BL, 2=TR, 3=BR
@@ -253,6 +256,32 @@ export default function IntensivePage() {
 
   useEffect(() => {
     loadTimeRef.current = Date.now();
+  }, []);
+
+  // Measure the fixed NavBar so everything below it clears it on any device,
+  // whatever the user's text-size setting or browser chrome is doing.
+  const [navClearance, setNavClearance] = useState(NAV_CLEARANCE_FALLBACK_PX);
+  useEffect(() => {
+    const measure = () => {
+      const nav = document.querySelector("nav");
+      if (!nav) return;
+      const bottom = nav.getBoundingClientRect().bottom;
+      if (bottom > 0) {
+        setNavClearance(Math.ceil(bottom) + NAV_GAP_PX);
+      }
+    };
+    measure();
+    // Re-measure after webfonts land and whenever the viewport changes.
+    const t = window.setTimeout(measure, 400);
+    window.addEventListener("resize", measure);
+    window.addEventListener("orientationchange", measure);
+    const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
+    fonts?.ready?.then(measure);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("orientationchange", measure);
+    };
   }, []);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const applicationRef = useRef<HTMLDivElement>(null);
@@ -1210,7 +1239,12 @@ export default function IntensivePage() {
         width: "100%",
         maxWidth: "1200px",
         margin: "0 auto",
-        padding: isMobile ? "clamp(84px, 12vh, 118px) 7vw 0 7vw" : "clamp(40px, 4vh, 72px) 3vw 0 3vw",
+        paddingTop: isMobile
+          ? `max(${navClearance + 18}px, 12vh)`
+          : `max(${navClearance}px, 4vh)`,
+        paddingRight: isMobile ? "7vw" : "3vw",
+        paddingLeft: isMobile ? "7vw" : "3vw",
+        paddingBottom: 0,
         boxSizing: "border-box",
       }}
     >
@@ -1219,7 +1253,7 @@ export default function IntensivePage() {
       <div
         style={{
           position: "sticky",
-          top: NAV_CLEARANCE_PX,
+          top: navClearance,
           zIndex: 5,
           background: "#ffffff",
           display: "flex",
