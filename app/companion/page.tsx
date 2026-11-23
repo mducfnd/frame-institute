@@ -81,9 +81,8 @@ export default function CompanionPage() {
             marginBottom: "2.5rem",
           }}
         >
-          This page always has the most current version. Download it and add it, along
-          with your FRAME profile, to the AI assistant you use. When a new version is
-          released, come back here for the update.
+          This page always has the most current version. Download the file and upload
+          it to your AI assistant alongside your FRAME profile.
         </p>
 
         <a
