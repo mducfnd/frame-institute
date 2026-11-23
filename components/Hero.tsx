@@ -150,7 +150,7 @@ export default function Hero() {
         ref={maskedVideoWrapRef}
         style={{
           position: "absolute", inset: 0, zIndex: 11,
-          WebkitMaskImage: "url(/assets/logo4.png)", maskImage: "url(/assets/logo4.png)",
+          WebkitMaskImage: "url(/assets/frame-logo-mono.svg)", maskImage: "url(/assets/frame-logo-mono.svg)",
           WebkitMaskSize: "calc(100% - 6vw) auto", maskSize: "calc(100% - 6vw) auto",
           WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
           WebkitMaskPosition: "center center", maskPosition: "center center",
@@ -191,7 +191,7 @@ export default function Hero() {
       {/* ── FRAME wordmark ── */}
       <div style={{ position: "relative", zIndex: 10, width: "100%", height: "100%", display: "flex", alignItems: "center", padding: "0 3vw", pointerEvents: "none" }}>
         <div style={{ width: "100%" }}>
-          <img ref={logoRef} src="/assets/logo4.png" alt="FRAME" style={{ display: "block", width: "100%", height: "auto", filter: "brightness(0)" }} />
+          <img ref={logoRef} src="/assets/frame-logo-color.svg" alt="FRAME" style={{ display: "block", width: "100%", height: "auto" }} />
         </div>
       </div>
 

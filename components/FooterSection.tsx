@@ -192,7 +192,7 @@ export default function FooterSection() {
           </div>
 
           <img
-            src="/assets/logo-footer-black.png"
+            src="/assets/frame-logo-white.svg"
             alt=""
             aria-hidden="true"
             style={{
@@ -200,7 +200,6 @@ export default function FooterSection() {
               marginLeft: "3vw",
               width: "calc(100% - 6vw)",
               height: "auto",
-              filter: "brightness(0) invert(1)",
               pointerEvents: "none",
               userSelect: "none",
             }}

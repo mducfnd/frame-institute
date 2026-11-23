@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { usePageTransition } from "./TransitionProvider";
 
 const FONT_LIGHT = "'nitti-grotesk-light', 'Helvetica Neue', Helvetica, Arial, sans-serif";
-const FONT_REG   = "'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
 const LOGO_THRESHOLD    = 0.9;
 const FOOTER_RISE_START = 7000;
@@ -52,25 +51,21 @@ export default function NavBar() {
         transition: "opacity 0.35s ease",
       }}
     >
-      {/* FRAME wordmark — clickable on connect page to go home */}
-      <div
+      {/* FRAME logo — clickable on connect page to go home */}
+      <img
+        src="/assets/frame-logo-mono.svg"
+        alt="FRAME"
         onClick={isConnectPage ? () => navigateTo("/") : undefined}
         style={{
-          fontFamily: FONT_REG,
-          fontWeight: 400,
-          fontSize: "clamp(34px, 2.9vw, 44px)",
-          letterSpacing: "0.15em",
-          textTransform: "uppercase",
-          color: "#1a1a1a",
-          lineHeight: 1,
+          display: "block",
+          height: "clamp(18px, 1.45vw, 22px)",
+          width: "auto",
           opacity: showLogo ? 1 : 0,
           pointerEvents: showLogo ? "auto" : "none",
           transition: "opacity 0.4s ease",
           cursor: isConnectPage ? "pointer" : "default",
         }}
-      >
-        FRAME
-      </div>
+      />
 
       {/* Connect / Home button */}
       <button
