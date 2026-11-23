@@ -188,8 +188,8 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── FRAME wordmark ── */}
-      <div style={{ position: "relative", zIndex: 10, width: "100%", height: "100%", display: "flex", alignItems: "center", padding: "0 3vw", pointerEvents: "none" }}>
+      {/* ── FRAME wordmark — above the masked video so the letters keep their true color ── */}
+      <div style={{ position: "relative", zIndex: 12, width: "100%", height: "100%", display: "flex", alignItems: "center", padding: "0 3vw", pointerEvents: "none" }}>
         <div style={{ width: "100%" }}>
           <img ref={logoRef} src="/assets/frame-logo-color.svg" alt="FRAME" style={{ display: "block", width: "100%", height: "auto" }} />
         </div>
