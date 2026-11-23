@@ -54,7 +54,7 @@ export default function CompanionPage() {
             marginBottom: "1.25rem",
           }}
         >
-          For FRAME participants
+          For participants
         </p>
 
         <h1
