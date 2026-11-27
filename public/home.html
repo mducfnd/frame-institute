@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FRAME</title>
+<meta name="description" content="FRAME is an applied model of human motivation. The architecture of human motivation.">
+<link rel="icon" href="/icon.png"><link rel="apple-touch-icon" href="/apple-icon.png">
+<meta property="og:title" content="FRAME"><meta property="og:description" content="The architecture of human motivation">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Red+Hat+Display:wght@300;400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* VOICE: quiet, exact, architectural — the model is "the architecture of human motivation"
+   IDEA: a draftsman's elevation drawing of the wordmark, inked line by line, then "built"
+   PICTURE: the FRAME logo drawn on construction lines, then revealed solid at center
+   COLOUR and TYPE: paper white, charcoal #2F2F2F, logo blue/orange/gold; orange is the scan line. Inter + Plex Mono for drafting notes
+   LAYOUT: full-screen stage; drafting notes bottom-left/right during the build; site chrome after */
+:root{color-scheme:light;--paper:#F6F5F2;--ink:#2F2F2F;--guide:rgba(47,47,47,.16);--scan:#E55934}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--paper);color:var(--ink);transition:background-color .45s ease}
+html.dark{--ink:#F6F5F2;--paper:#2F2F2F}
+html.locked,html.locked body{overflow:hidden;height:100%}
+/* no visible scrollbar: when the intro unlocks scrolling, a scrollbar appearing would narrow the page and nudge the logo */
+html{scrollbar-width:none}html::-webkit-scrollbar{display:none}
+#track{height:calc(100vh + 5600px + 1185vh + 390vh + 110vh)}
+body{font:16px/1.5 Inter,"Helvetica Neue",Arial,sans-serif}
+#stage{position:fixed;inset:0;width:100%;height:100%;display:block}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.notes{position:fixed;left:max(3vw,16px);right:max(3vw,16px);bottom:max(3.5vh,18px);display:flex;justify-content:space-between;align-items:flex-end;gap:24px;pointer-events:none}
+.big{font-weight:500;font-size:clamp(20px,2.4vw,34px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
+.spec{font-size:10.5px;line-height:1.6;color:rgba(47,47,47,.7);display:grid;grid-template-columns:auto auto;column-gap:18px;text-transform:uppercase;letter-spacing:.04em}
+.spec b{font-weight:400;color:rgba(47,47,47,.45)}
+.pct{position:fixed;left:max(3vw,16px);font-size:11px;color:var(--scan);transform:translateY(-140%);pointer-events:none}
+.chrome{opacity:0;pointer-events:none;transition:opacity 1.1s ease}
+.on{opacity:1;pointer-events:auto}
+.cta{position:fixed;top:16px;right:max(1.5vw,16px);background:transparent;color:var(--ink);border:1px solid var(--ink);border-radius:5px;padding:.7rem 1.6rem;font:400 clamp(13px,1.1vw,16px) 'Red Hat Display',Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;min-height:44px;cursor:pointer;transition:background .3s ease,color .3s ease}
+.cta:hover,.cta:focus-visible{background:var(--ink);color:var(--paper);outline:none}
+.chev{position:fixed;left:50%;bottom:4rem;transform:translateX(-50%)}
+.replay{position:fixed;left:max(1.5vw,10px);top:16px;background:none;border:0;color:var(--ink);opacity:.55;font:12px "IBM Plex Mono",monospace;cursor:pointer;min-height:44px;padding:0 6px}
+.replay:hover,.replay:focus-visible{color:var(--ink)}
+
+
+/* the Expression words stream past in depth while the A comes forward */
+#field{position:fixed;inset:0;overflow:hidden;pointer-events:none;opacity:0}
+#flines{position:absolute;inset:0;width:100%;height:100%}
+#field span{position:absolute;left:0;top:0;transform-origin:0 50%;font:300 15px/1 'Red Hat Display',Inter,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--ink);white-space:nowrap;will-change:transform,opacity;opacity:0}
+/* section 2: the six words */
+#a3wrap{position:fixed;inset:0;pointer-events:none;opacity:0}
+#a3{position:absolute;inset:0;width:100%;height:100%}
+#anchor{position:fixed;inset:0;width:100%;height:100%;opacity:0;pointer-events:none}
+#anchor .ab{stroke:rgba(246,245,242,.12)}
+#anchor .af{opacity:.75;stroke-dasharray:0 1}
+#stage{transform-origin:50% 50%}
+#guides,#dims,#outline,#scan,#pct,#notes{display:none}
+/* section 3: on the light ground, the statement resolves word by word out of a blur; a colour wave runs through each word as it lands,
+   and YOU is underscored by the A's four lines */
+#s3{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 7vw;background:#F6F5F2;opacity:0;pointer-events:none}
+#s3t{margin:0;font:500 clamp(48px,8.4vw,158px)/.98 'Red Hat Display',Inter,sans-serif;letter-spacing:-.03em;color:#2F2F2F}
+#s3t .w{display:inline-block;will-change:filter,transform,opacity}
+#s3t .you{position:relative;transform-origin:50% 80%}
+#s3t br.mb{display:none}
+@media(max-width:700px){#s3t{font-size:12.5vw}#s3t br.mb{display:inline}}
+/* footer: headline and button, a living A, contact, a hairline, and the wordmark set tighter and full width */
+#foot{position:fixed;inset:0;z-index:3;background:#2F2F2F;color:#F6F5F2;transform:translateY(100%);will-change:transform;overflow:hidden;
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:1fr auto auto auto;column-gap:6vw;
+ padding:clamp(72px,12vh,140px) 5vw clamp(20px,3.2vw,48px)}
+#foot .fhead{grid-column:1;grid-row:1;align-self:start}
+#foot h2{margin:0;max-width:9ch;font:500 clamp(48px,6.4vw,118px)/.96 'Red Hat Display',Inter,sans-serif;letter-spacing:-.015em}
+#foot .fbtn{margin-top:clamp(24px,4.5vh,48px);display:inline-flex;align-items:center;justify-content:center;height:clamp(50px,6.4vh,64px);padding:0 clamp(26px,2.4vw,40px);background:transparent;color:#F6F5F2;border:1.5px solid #F6F5F2;border-radius:5px;font:400 clamp(14px,1.05vw,17px) 'Red Hat Display',Inter,sans-serif;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:background .25s,color .25s}
+#foot .fbtn:hover,#foot .fbtn:focus-visible{background:#F6F5F2;color:#2F2F2F;outline:none}
+#foot .fa{grid-column:2;grid-row:1;justify-self:center;align-self:center;height:min(42vh,100%);width:auto;max-width:100%;overflow:visible}
+#foot .fa .fg{stroke:#F6F5F2;opacity:.12;stroke-width:15}
+#foot .fa .fb,#foot .fa .fw{stroke-width:15;stroke-dasharray:0 1}
+#foot .fa .fk{stroke:#2F2F2F;stroke-width:54;stroke-dasharray:0 1}   /* knocks a gap where lines cross, as in the logo */
+#foot .fc{grid-column:1/-1;grid-row:2;display:flex;justify-content:space-between;align-items:flex-end;gap:4vw;margin:0 0 clamp(18px,2.6vh,30px);font:400 clamp(15px,1.3vw,22px)/1.4 'Red Hat Display',Inter,sans-serif;font-style:normal}
+#foot .fc a{color:inherit;text-decoration:none}
+#foot .fcl,#foot .fcr{display:flex;flex-direction:column}#foot .fcr{text-align:right}
+#foot .frule{grid-column:1/-1;grid-row:3;height:1px;background:rgba(246,245,242,.28);margin-bottom:clamp(22px,3.4vh,40px)}
+#foot .flogo{grid-column:1/-1;grid-row:4;display:block;width:100%;height:auto}
+@media(max-width:767px){
+ #foot{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto auto;padding:clamp(56px,9vh,96px) 6vw 6vw}
+ #foot h2{font-size:12.6vw;max-width:none}
+ #foot .fa{grid-column:1;grid-row:2;height:min(38vh,100%);margin:2vh 0}
+ #foot .fc{grid-row:3;font-size:clamp(14px,3.9vw,17px)}
+ #foot .frule{grid-row:4}#foot .flogo{grid-row:5}
+}
+/* section 2: four cards in the four colours of the A, each sliding up over the last; the A builds one line per card */
+#cards{position:fixed;inset:0;z-index:0;opacity:0;pointer-events:none;overflow:hidden}
+.card{position:absolute;inset:0;background:var(--bg);color:var(--ink);transform-origin:50% 0;will-change:transform;overflow:hidden}
+.card+.card{transform:translateY(100%)}
+/* card copy rises line by line from behind its own baseline as each card lands */
+.card .ln{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.card .li{display:block;white-space:nowrap;transform:translateY(110%);transition:transform 1.15s cubic-bezier(.2,.7,.1,1)}
+.card.rv .li{transform:none}
+.card .hw{opacity:.2;transition:opacity .25s linear}
+.card:not(.rv) .li{transition-duration:.35s;transition-delay:0s!important}
+@media(prefers-reduced-motion:reduce){.card .li{transform:none;transition:none}}
+
+.card .dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+.cin{height:100%;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;gap:4vw;padding:0 6vw}
+.ck{margin:0 0 .4em;font:400 clamp(15px,1.25vw,21px)/1 'Red Hat Display',Inter,sans-serif;letter-spacing:.32em;text-transform:uppercase;opacity:.75}
+.card h2{margin:0;font:500 clamp(56px,8.2vw,150px)/.88 'Red Hat Display',Inter,sans-serif;letter-spacing:-.025em}
+.cp{margin:clamp(22px,4vh,44px) 0 0;max-width:34ch;font:400 clamp(21px,1.9vw,34px)/1.45 'Red Hat Display',Inter,sans-serif}
+.ca{width:100%;max-height:70vh;justify-self:center}
+.ca .sl path{stroke-dasharray:0 1}
+@media(max-width:700px){
+ .cin{grid-template-columns:1fr;grid-template-rows:auto auto;align-content:center;gap:4vh;padding:0 7vw}
+ .ca{order:-1;max-height:24vh;width:auto;justify-self:start}
+ .card h2{font-size:15vw}.cp{font-size:20px;line-height:1.45}.ck{font-size:14px}
+}
+
+/* STACKED CARDS (experiment): each card slides up and stops just below the one before; the covered card's headline
+   tucks down to a slim tab, so the card in front keeps the full-size type and a large A grounded at its foot */
+.cin{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);grid-template-rows:auto 1fr;align-items:start;column-gap:4vw;row-gap:0}
+.chead{grid-column:1/-1;padding:clamp(18px,3vh,32px) 0 clamp(10px,2vh,22px);transform-origin:0 0;will-change:transform}
+.ctext{align-self:start;padding-top:clamp(8px,2vh,24px)}
+.ca{align-self:end;justify-self:end;width:auto;max-width:100%;height:min(60vh,calc(var(--avail,100vh) - 7vh));max-height:none;margin-bottom:7vh}
+@media(max-width:700px){
+ .cin{grid-template-columns:1fr;grid-template-rows:auto auto 1fr;align-content:stretch;row-gap:0}
+ .chead{padding:16px 0 6px}
+ .ctext{grid-row:2;padding-top:6px}
+ .ca{order:0;grid-row:3;justify-self:start;align-self:end;height:min(26vh,calc(var(--avail,100vh) - var(--txt,300px) - 8vh));margin-bottom:5vh}
+}
+#words{position:fixed;inset:0;opacity:0;pointer-events:none;display:flex}
+#words .col{position:relative;height:100%;overflow:hidden;flex:0 0 50%}
+#words h2{position:absolute;left:5vw;right:2vw;top:50%;margin:0;font:400 clamp(36px,4.6vw,88px)/1 'Red Hat Display',Inter,sans-serif;letter-spacing:-.01em;text-transform:uppercase;white-space:nowrap;color:rgba(246,245,242,.25);transition:color .3s ease;will-change:transform,opacity}
+#words h2.act{color:#F6F5F2}
+#words .stack{position:absolute;left:2vw;right:5vw;top:50%;will-change:transform}
+#words .blk{height:78vh;display:flex;align-items:center}
+#words .blk p{margin:0 0 0 -6px;padding:0 6px;max-width:42ch;width:fit-content;font:400 clamp(19px,1.55vw,27px)/1.55 'Red Hat Display',Inter,sans-serif;color:#F6F5F2;
+ /* a quiet panel in the background colour clears the A's lines from behind the copy */
+ background:#2F2F2F}
+
+@media(max-width:700px){
+ #words{flex-direction:column}
+ #words .col.l{flex:0 0 calc(86px + 4 * 4.4vh + 2vh);margin-top:0}
+ #words .col.r{flex:1 1 auto;margin-top:-3vh;
+  /* copy evaporates as it rises toward the headlines instead of being cut off */
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.35) 7%,#000 20%);mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.35) 7%,#000 20%)}
+ #words .col.r .blk p{transition:none}
+ #words h2{left:7vw;top:86px;font-size:7.4vw}
+ #words .stack{left:7vw;right:7vw}
+ #words .blk{height:auto;padding:5vh 0}
+ #words .blk p{font-size:4.4vw;max-width:none}
+}
+@media(max-width:600px){.notes{flex-direction:column;align-items:flex-start;gap:14px}.spec{order:-1}}
+@media(prefers-reduced-motion:reduce){.chrome{transition:none}}
+a.cta,a.fbtn{text-decoration:none;box-sizing:border-box}a.cta{display:inline-flex;align-items:center}
+.replay{display:none!important}
+</style></head><body>
+<div id="field" aria-hidden="true"></div>
+<div id="a3wrap" aria-hidden="true"><svg id="a3" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<svg id="stage" xmlns="http://www.w3.org/2000/svg" aria-label="FRAME">
+ <defs><mask id="m3" maskUnits="userSpaceOnUse" x="1777.5" y="-200" width="1170.8" height="920.0"><rect x="1777.5" y="-200" width="1170.8" height="920.0" fill="#fff"/><path d="M2383.90,0.00 L2706.30,520.00 L2675.71,520.00 L2383.90,49.34 L2092.09,520.00 L2061.50,520.00 Z" fill="#000" stroke="#000" stroke-width="18.42" stroke-linejoin="round"/><path d="M2341.90,0.00 L2664.30,520.00 L2633.71,520.00 L2341.90,49.34 L2050.09,520.00 L2019.50,520.00 Z" fill="#000" stroke="#000" stroke-width="18.42" stroke-linejoin="round"/><path d="M2299.90,0.00 L2622.30,520.00 L2591.71,520.00 L2299.90,49.34 L2008.09,520.00 L1977.50,520.00 Z" fill="#000" stroke="#000" stroke-width="18.42" stroke-linejoin="round"/></mask><mask id="m2" maskUnits="userSpaceOnUse" x="1777.5" y="-200" width="1170.8" height="920.0"><rect x="1777.5" y="-200" width="1170.8" height="920.0" fill="#fff"/><path d="M2341.90,0.00 L2664.30,520.00 L2633.71,520.00 L2341.90,49.34 L2050.09,520.00 L2019.50,520.00 Z" fill="#000" stroke="#000" stroke-width="18.42" stroke-linejoin="round"/><path d="M2299.90,0.00 L2622.30,520.00 L2591.71,520.00 L2299.90,49.34 L2008.09,520.00 L1977.50,520.00 Z" fill="#000" stroke="#000" stroke-width="18.42" stroke-linejoin="round"/></mask><mask id="m1" maskUnits="userSpaceOnUse" x="1777.5" y="-200" width="1170.8" height="920.0"><rect x="1777.5" y="-200" width="1170.8" height="920.0" fill="#fff"/><path d="M2299.90,0.00 L2622.30,520.00 L2591.71,520.00 L2299.90,49.34 L2008.09,520.00 L1977.50,520.00 Z" fill="#000" stroke="#000" stroke-width="18.42" stroke-linejoin="round"/></mask>
+  <filter id="lb0" filterUnits="userSpaceOnUse" x="-2000" y="-1500" width="9000" height="3600"><feGaussianBlur stdDeviation="0"/></filter><filter id="lb1" filterUnits="userSpaceOnUse" x="-2000" y="-1500" width="9000" height="3600"><feGaussianBlur stdDeviation="0"/></filter><filter id="lb2" filterUnits="userSpaceOnUse" x="-2000" y="-1500" width="9000" height="3600"><feGaussianBlur stdDeviation="0"/></filter><filter id="lb3" filterUnits="userSpaceOnUse" x="-2000" y="-1500" width="9000" height="3600"><feGaussianBlur stdDeviation="0"/></filter><filter id="lb4" filterUnits="userSpaceOnUse" x="-2000" y="-1500" width="9000" height="3600"><feGaussianBlur stdDeviation="0"/></filter><clipPath id="thclip"><rect id="thclipr" x="-1e6" y="-1e6" width="2e6" height="1e6"/></clipPath>
+  <clipPath id="rev"><rect id="revr" x="-20000" y="-200" width="40000" height="0"/></clipPath>
+ </defs>
+ <g id="guides" style="transform-box:view-box;transform-origin:center" stroke="var(--guide)" stroke-width="1" vector-effect="non-scaling-stroke" fill="none"></g>
+ <g id="dims" fill="none"></g>
+ <g id="outline" fill="none" stroke-width="1.25" stroke-linejoin="miter">
+  <path class="ol" d="M0.0,0 h542 v46.0 h-496.0 v191.0 h392.0 v46.0 h-392.0 v237.0 h-46.0 Z" stroke="#2F2F2F"/>
+  <path class="ol" d="M962.0,0 H1375.0 A141.0,141.0 0 0 1 1375.0,282.0 H1008.0 V520.0 H962.0 Z M1008.0,46.0 V236.0 H1375.0 A95.0,95.0 0 0 0 1375.0,46.0 Z" stroke="#2F2F2F"/>
+  <path class="ol" d="M1270.22,236.0 L1332.22,236.0 L1588.51,520.0 L1526.51,520.0 Z" stroke="#2F2F2F"/>
+  <path class="ol" d="M2299.90,0.00 L2622.30,520.00 L2591.71,520.00 L2299.90,49.34 L2008.09,520.00 L1977.50,520.00 Z" stroke="#2F2F2F"/>
+  <path class="ol" d="M3198.30,0.00 L3282.50,0.00 L3559.30,354.87 L3836.10,0.00 L3920.30,0.00 L3920.30,520.00 L3874.30,520.00 L3874.30,25.38 L3559.30,429.23 L3244.30,25.38 L3244.30,520.00 L3198.30,520.00 Z" stroke="#2F2F2F"/>
+  <path class="ol" d="M4340.3,0 h520.0 v46.0 h-474.0 v191.0 h395.0 v46.0 h-395.0 v191.0 h474.0 v46.0 h-520.0 Z" stroke="#2F2F2F"/>
+  <path class="ol" d="M2341.90,0.00 L2664.30,520.00 L2633.71,520.00 L2341.90,49.34 L2050.09,520.00 L2019.50,520.00 Z" stroke="#7DB8D6"/>
+  <path class="ol" d="M2383.90,0.00 L2706.30,520.00 L2675.71,520.00 L2383.90,49.34 L2092.09,520.00 L2061.50,520.00 Z" stroke="#E55934"/>
+  <path class="ol" d="M2425.90,0.00 L2748.30,520.00 L2717.71,520.00 L2425.90,49.34 L2134.09,520.00 L2103.50,520.00 Z" stroke="#F2B950"/>
+ </g>
+ <g id="solid" clip-path="url(#rev)">
+  <g id="letters" fill="#2F2F2F"><path d="M0.0,0 h542 v46.0 h-496.0 v191.0 h392.0 v46.0 h-392.0 v237.0 h-46.0 Z"/><path d="M962.0,0 H1375.0 A141.0,141.0 0 0 1 1375.0,282.0 H1008.0 V520.0 H962.0 Z M1008.0,46.0 V236.0 H1375.0 A95.0,95.0 0 0 0 1375.0,46.0 Z" fill-rule="evenodd"/><path d="M1270.22,236.0 L1332.22,236.0 L1588.51,520.0 L1526.51,520.0 Z"/><path d="M3198.30,0.00 L3282.50,0.00 L3559.30,354.87 L3836.10,0.00 L3920.30,0.00 L3920.30,520.00 L3874.30,520.00 L3874.30,25.38 L3559.30,429.23 L3244.30,25.38 L3244.30,520.00 L3198.30,520.00 Z"/><path d="M4340.3,0 h520.0 v46.0 h-474.0 v191.0 h395.0 v46.0 h-395.0 v191.0 h474.0 v46.0 h-520.0 Z"/></g>
+  <path class="fan" data-i="3" d="M2425.90,0.00 L2748.30,520.00 L2717.71,520.00 L2425.90,49.34 L2134.09,520.00 L2103.50,520.00 Z" fill="#F2B950" mask="url(#m3)"/>
+  <path class="fan" data-i="2" d="M2383.90,0.00 L2706.30,520.00 L2675.71,520.00 L2383.90,49.34 L2092.09,520.00 L2061.50,520.00 Z" fill="#E55934" mask="url(#m2)"/>
+  <path class="fan" data-i="1" d="M2341.90,0.00 L2664.30,520.00 L2633.71,520.00 L2341.90,49.34 L2050.09,520.00 L2019.50,520.00 Z" fill="#7DB8D6" mask="url(#m1)"/>
+  <path id="a0" d="M2299.90,0.00 L2622.30,520.00 L2591.71,520.00 L2299.90,49.34 L2008.09,520.00 L1977.50,520.00 Z" fill="#2F2F2F"/>
+ </g>
+ <g id="threads" clip-path="url(#thclip)" fill="none" stroke-linejoin="miter" stroke-miterlimit="8" stroke-linecap="butt" style="opacity:0"></g>
+ <g id="tagwrap"><text id="tagline" x="0" y="870" textLength="4860" lengthAdjust="spacing" fill="#2F2F2F" font-family="'Red Hat Display',Inter,sans-serif" font-weight="450" font-size="80" opacity="0">THE ARCHITECTURE OF HUMAN MOTIVATION</text></g>
+ <line id="scan" stroke="var(--scan)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+</svg>
+<div class="pct mono" id="pct">0%</div>
+<div class="notes" id="notes">
+ <div class="big">The architecture<br>of human motivation</div>
+ <div class="spec mono" id="spec">
+  <b>Institute</b><span>FRAME Institute</span>
+  <b>Model</b><span>Structural motivation</span>
+  <b>Domains</b><span>Capacity · Control · Coherence</span>
+  <b>Expressions</b><span>Need · Want · Desire · Fear</span>
+ </div>
+</div>
+<svg id="anchor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linejoin="miter"><path class="ab" d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path class="af" d="M1992.8,520 L2299.9,24.7 L2607.0,520" stroke="#F6F5F2" pathLength="1"/><path class="ab" d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path class="af" d="M2034.8,520 L2341.9,24.7 L2649.0,520" stroke="#7DB8D6" pathLength="1"/><path class="ab" d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path class="af" d="M2076.8,520 L2383.9,24.7 L2691.0,520" stroke="#E55934" pathLength="1"/><path class="ab" d="M2118.8,520 L2425.9,24.7 L2733.0,520"/><path class="af" d="M2118.8,520 L2425.9,24.7 L2733.0,520" stroke="#F2B950" pathLength="1"/></svg>
+<section id="cards" aria-label="About FRAME"><article class="card" style="--bg:#2F2F2F;--ink:#F6F5F2"><div class="cin">
+ <div class="chead"><p class="ck">The</p><h2>MODEL</h2></div><div class="ctext"><p class="cp">FRAME is an applied model of human motivation—a tool for navigating work, life, and relationships with greater clarity and insight. It looks beyond behavior, skills, and strengths to reveal the underlying architecture shaping how you experience the world.</p></div>
+ <svg class="ca" viewBox="1960 0 820 540" aria-hidden="true"><g class="gh" fill="none" stroke="#F6F5F2" stroke-width="2" vector-effect="non-scaling-stroke" opacity=".28"><path d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g><g class="sl" fill="none" stroke="#F6F5F2" stroke-width="12" stroke-linejoin="miter" stroke-linecap="butt"><path pathLength="1" d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path pathLength="1" d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path pathLength="1" d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path pathLength="1" d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g></svg>
+</div><div class="dim"></div></article><article class="card" style="--bg:#7DB8D6;--ink:#2F2F2F"><div class="cin">
+ <div class="chead"><p class="ck">The</p><h2>APPROACH</h2></div><div class="ctext"><p class="cp">Built for a broad range of contexts, FRAME can be implemented one-on-one and at scale. It has been relied on for nearly a decade in moments that demand more than instinct: what to choose, who to trust, how to lead, when to change, why groups succeed—or don’t—and where to aim when the path is unclear.</p></div>
+ <svg class="ca" viewBox="1960 0 820 540" aria-hidden="true"><g class="gh" fill="none" stroke="#2F2F2F" stroke-width="2" vector-effect="non-scaling-stroke" opacity=".28"><path d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g><g class="sl" fill="none" stroke="#2F2F2F" stroke-width="12" stroke-linejoin="miter" stroke-linecap="butt"><path pathLength="1" d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path pathLength="1" d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path pathLength="1" d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path pathLength="1" d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g></svg>
+</div><div class="dim"></div></article><article class="card" style="--bg:#E55934;--ink:#2F2F2F"><div class="cin">
+ <div class="chead"><p class="ck">The</p><h2>PROCESS</h2></div><div class="ctext"><p class="cp">The work begins by mapping the core factors that drive how you perceive situations, make decisions, confront obstacles, and engage with others. From there, the focus shifts to real-world application—distilling the findings into a practical resource for addressing the choices, challenges, and priorities that matter most.</p></div>
+ <svg class="ca" viewBox="1960 0 820 540" aria-hidden="true"><g class="gh" fill="none" stroke="#2F2F2F" stroke-width="2" vector-effect="non-scaling-stroke" opacity=".28"><path d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g><g class="sl" fill="none" stroke="#2F2F2F" stroke-width="12" stroke-linejoin="miter" stroke-linecap="butt"><path pathLength="1" d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path pathLength="1" d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path pathLength="1" d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path pathLength="1" d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g></svg>
+</div><div class="dim"></div></article><article class="card" style="--bg:#F2B950;--ink:#2F2F2F"><div class="cin">
+ <div class="chead"><p class="ck">The</p><h2>FUTURE</h2></div><div class="ctext"><p class="cp">FRAME is an adaptive system that evolves alongside the individuals and organizations it serves. Engineered with the option of native AI integration, it extends beyond the limits of a fixed model, becoming increasingly valuable as circumstances shift, roles transform, and new technologies emerge.</p></div>
+ <svg class="ca" viewBox="1960 0 820 540" aria-hidden="true"><g class="gh" fill="none" stroke="#2F2F2F" stroke-width="2" vector-effect="non-scaling-stroke" opacity=".28"><path d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g><g class="sl" fill="none" stroke="#2F2F2F" stroke-width="12" stroke-linejoin="miter" stroke-linecap="butt"><path pathLength="1" d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path pathLength="1" d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path pathLength="1" d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path pathLength="1" d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g></svg>
+</div><div class="dim"></div></article></section>
+<section id="words" style="display:none" aria-label="About FRAME"><div class="col l"><h2>THE MODEL</h2><h2>THE APPROACH</h2><h2>THE PROCESS</h2><h2>THE FUTURE</h2></div><div class="col r"><div class="stack"><div class="blk"><p>FRAME is an applied model of human motivation—a tool for navigating work, life, and relationships with greater clarity and insight. It looks beyond behavior, skills, and strengths to reveal the underlying architecture shaping how you experience the world.</p></div><div class="blk"><p>Built for a broad range of contexts, FRAME can be implemented one-on-one and at scale. It has been relied on for nearly a decade in moments that demand more than instinct: what to choose, who to trust, how to lead, when to change, why groups succeed—or don’t—and where to aim when the path is unclear.</p></div><div class="blk"><p>The work begins by mapping the core factors that drive how you perceive situations, make decisions, confront obstacles, and engage with others. From there, the focus shifts to real-world application—distilling the findings into a practical resource for addressing the choices, challenges, and priorities that matter most.</p></div><div class="blk"><p>FRAME is an adaptive system that evolves alongside the individuals and organizations it serves. Engineered with the option of native AI integration, it extends beyond the limits of a fixed model, becoming increasingly valuable as circumstances shift, roles transform, and new technologies emerge.</p></div></div></div></section>
+<section id="s3" aria-label="FRAME makes you make sense"><h2 id="s3t"><span class="w">FRAME</span><br class="mb"> <span class="w">makes</span> <span class="w you">you</span><br> <span class="w">make</span> <span class="w">sense.</span></h2></section>
+<footer id="foot">
+ <div class="fhead"><h2>Discover your FRAME</h2><a class="fbtn" href="/connect">Start here</a></div>
+ <svg class="fa" viewBox="1950 -10 830 545" aria-hidden="true"><defs><clipPath id="fclip"><rect x="1900" y="-100" width="1000" height="620"/></clipPath></defs><g clip-path="url(#fclip)" fill="none" stroke-linejoin="miter" stroke-miterlimit="8"><g class="fs" data-k="3"><path class="fg" d="M2100.4,549.7 L2425.9,24.67 L2751.4,549.7"/><path class="fk" pathLength="1" d="M2100.4,549.7 L2425.9,24.67 L2751.4,549.7"/><path class="fb" pathLength="1" d="M2100.4,549.7 L2425.9,24.67 L2751.4,549.7"/><path class="fw" pathLength="1" d="M2100.4,549.7 L2425.9,24.67 L2751.4,549.7"/></g><g class="fs" data-k="2"><path class="fg" d="M2058.4,549.7 L2383.9,24.67 L2709.4,549.7"/><path class="fk" pathLength="1" d="M2058.4,549.7 L2383.9,24.67 L2709.4,549.7"/><path class="fb" pathLength="1" d="M2058.4,549.7 L2383.9,24.67 L2709.4,549.7"/><path class="fw" pathLength="1" d="M2058.4,549.7 L2383.9,24.67 L2709.4,549.7"/></g><g class="fs" data-k="1"><path class="fg" d="M2016.4,549.7 L2341.9,24.67 L2667.4,549.7"/><path class="fk" pathLength="1" d="M2016.4,549.7 L2341.9,24.67 L2667.4,549.7"/><path class="fb" pathLength="1" d="M2016.4,549.7 L2341.9,24.67 L2667.4,549.7"/><path class="fw" pathLength="1" d="M2016.4,549.7 L2341.9,24.67 L2667.4,549.7"/></g><g class="fs" data-k="0"><path class="fg" d="M1974.4,549.7 L2299.9,24.67 L2625.4,549.7"/><path class="fk" pathLength="1" d="M1974.4,549.7 L2299.9,24.67 L2625.4,549.7"/><path class="fb" pathLength="1" d="M1974.4,549.7 L2299.9,24.67 L2625.4,549.7"/><path class="fw" pathLength="1" d="M1974.4,549.7 L2299.9,24.67 L2625.4,549.7"/></g></g></svg>
+ <address class="fc"><span class="fcl"><a href="mailto:hello@frame.institute">hello@frame.institute</a><span>+1 212 470 5433</span></span><span class="fcr"><span>224 W 35th St Ste 500</span><span>New York, NY 10001</span></span></address>
+ <div class="frule"></div>
+ <svg class="flogo" viewBox="0 0 3886.5 520" fill="#F6F5F2" aria-label="FRAME"><g transform="translate(0.0 0)"><path d="M0.0,0 h542 v46.0 h-496.0 v191.0 h392.0 v46.0 h-392.0 v237.0 h-46.0 Z"/></g><g transform="translate(-243.6 0)"><path d="M962.0,0 H1375.0 A141.0,141.0 0 0 1 1375.0,282.0 H1008.0 V520.0 H962.0 Z M1008.0,46.0 V236.0 H1375.0 A95.0,95.0 0 0 0 1375.0,46.0 Z" fill-rule="evenodd"/><path d="M1270.22,236.0 L1332.22,236.0 L1588.51,520.0 L1526.51,520.0 Z"/></g><g transform="translate(-469.2 0)"><path d="M2425.90,0.00 L2748.30,520.00 L2717.71,520.00 L2425.90,49.34 L2134.09,520.00 L2103.50,520.00 Z" mask="url(#m3)"/><path d="M2383.90,0.00 L2706.30,520.00 L2675.71,520.00 L2383.90,49.34 L2092.09,520.00 L2061.50,520.00 Z" mask="url(#m2)"/><path d="M2341.90,0.00 L2664.30,520.00 L2633.71,520.00 L2341.90,49.34 L2050.09,520.00 L2019.50,520.00 Z" mask="url(#m1)"/><path d="M2299.90,0.00 L2622.30,520.00 L2591.71,520.00 L2299.90,49.34 L2008.09,520.00 L1977.50,520.00 Z"/></g><g transform="translate(-730.2 0)"><path d="M3198.30,0.00 L3282.50,0.00 L3559.30,354.87 L3836.10,0.00 L3920.30,0.00 L3920.30,520.00 L3874.30,520.00 L3874.30,25.38 L3559.30,429.23 L3244.30,25.38 L3244.30,520.00 L3198.30,520.00 Z"/></g><g transform="translate(-973.8 0)"><path d="M4340.3,0 h520.0 v46.0 h-474.0 v191.0 h395.0 v46.0 h-395.0 v191.0 h474.0 v46.0 h-520.0 Z"/></g></svg>
+</footer>
+<div id="track"></div>
+<div class="chrome" id="chrome">
+ <a class="cta" href="/connect">Connect</a>
+ <svg class="chev" width="28" height="17" viewBox="0 0 28 17" fill="none"><path d="M1 1L14 15.5L27 1" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</div>
+<button class="replay" id="replay" type="button">Replay ↺</button>
+<script>
+{
+const NS='http://www.w3.org/2000/svg', svg=document.getElementById('stage');
+const LW=4860.3, LH=520, CX=LW/2, CY=LH/2, BY=435; /* BY: centre of logo + tagline block */
+const COLS=[[0,542],[962,1588.5],[1977.5,2748.3],[3198.3,3920.3],[4340.3,4860.3]];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let vb={x:0,y:0,w:1,h:1}, base=null, s=1, timers=[], raf=0;
+
+function layout(){
+  const W=innerWidth,H=innerHeight, frac=W<600?.9:.84;
+  s=(W*frac)/LW;                       /* px per unit */
+  vb={w:W/s,h:H/s}; vb.x=CX-vb.w/2; vb.y=BY-vb.h/2;
+  const tg=document.getElementById('tagline'), tfs=Math.max(80,9/s); tg.setAttribute('font-size',tfs); tg.setAttribute('y',520+290+tfs*.72);
+  svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`); base={...vb}; onScroll();
+  const g=document.getElementById('guides'); g.innerHTML='';
+  const hl=y=>`<line x1="${vb.x}" x2="${vb.x+vb.w}" y1="${y}" y2="${y}" vector-effect="non-scaling-stroke"/>`;
+  const vl=x=>`<line y1="${vb.y}" y2="${vb.y+vb.h}" x1="${x}" x2="${x}" vector-effect="non-scaling-stroke"/>`;
+  g.innerHTML=[0,LH].map(hl).join('')+`<g stroke-dasharray="4 6">${hl(CY)}</g>`+COLS.flat().map(vl).join('');
+  const fs=10/s, d=document.getElementById('dims'), dx=-40/s*3;
+  d.innerHTML=`<g stroke="rgba(47,47,47,.5)" vector-effect="non-scaling-stroke">
+   <line x1="${dx}" x2="${dx}" y1="0" y2="${LH}" vector-effect="non-scaling-stroke"/>
+   <line x1="${dx-6/s}" x2="${dx+6/s}" y1="0" y2="0" vector-effect="non-scaling-stroke"/>
+   <line x1="${dx-6/s}" x2="${dx+6/s}" y1="${LH}" y2="${LH}" vector-effect="non-scaling-stroke"/></g>
+   <text x="${dx-10/s}" y="${CY}" font-size="${fs}" text-anchor="end" dominant-baseline="middle" fill="rgba(47,47,47,.6)" font-family="IBM Plex Mono,monospace">520</text>`+
+   ['F','R','A','M','E'].map((l,i)=>`<text x="${(COLS[i][0]+COLS[i][1])/2}" y="${LH+26/s}" font-size="${fs}" text-anchor="middle" fill="rgba(47,47,47,.55)" font-family="IBM Plex Mono,monospace">${l} · 0${i+1}</text>`).join('');
+  const sc=document.getElementById('scan'); sc.setAttribute('x1',vb.x); sc.setAttribute('x2',vb.x+vb.w);
+}
+
+function setScan(y){
+  const sc=document.getElementById('scan'); sc.setAttribute('y1',y); sc.setAttribute('y2',y);
+  document.getElementById('pct').style.top=((y-vb.y)*s)+'px';
+}
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+/* build counter: eases in, then keeps a steady pace all the way to 100 (no slow crawl at the end) */
+const buildEase=t=>{const a=.35,v=1/(1-a/2);return t<a?v*t*t/(2*a):Math.min(1,v*(t-a/2))};
+function tween(ms,fn,done){const t0=performance.now();const step=n=>{const t=Math.min(1,(n-t0)/ms);fn(t);if(t<1)raf=requestAnimationFrame(step);else done&&done()};raf=requestAnimationFrame(step)}
+const later=(ms,fn)=>timers.push(setTimeout(fn,ms));
+function fade(el,to,ms){el.animate([{opacity:getComputedStyle(el).opacity},{opacity:to}],{duration:ms,fill:'forwards',easing:'ease'})}
+
+function reset(){
+  timers.forEach(clearTimeout); timers=[]; cancelAnimationFrame(raf);
+  document.getAnimations().forEach(a=>a.cancel());
+  document.getElementById('chrome').classList.remove('on'); svg.style.opacity=1; svg.style.transform=''; a3w.style.opacity=0; document.documentElement.classList.remove('dark');
+  document.getElementById('revr').setAttribute('height',0);
+  document.querySelectorAll('.fan').forEach(p=>{p.removeAttribute('transform');p.style.opacity=''});
+  LET.forEach(p=>{p.style.opacity='';p.removeAttribute('filter');p.removeAttribute('transform')});
+  document.getElementById('threads').style.opacity=0; document.getElementById('tagline').setAttribute('opacity',0);
+}
+
+/* INTRO — many loose strands of motivation drift across the page; they pull taut into the four lines of the A,
+   then the view draws back and the rest of the word resolves out of a blur around it (the same move the page
+   makes again in "FRAME makes you make sense"). Scrolling then returns the view to the A. */
+const LET=[...document.querySelectorAll('#letters path')];
+const LCX=[271,1275,1275,3559,4600], LORD=[1,0,0,1,2];          /* letter centres; order of arrival, nearest the A first */
+const TCOL=['#2F2F2F','#7DB8D6','#E55934','#F2B950'], NPT=121, STRANDS=3;
+const TH=[]; /* one solid thread and two faint companions per colour */
+function buildThreads(){
+  const g=document.getElementById('threads'); g.innerHTML=''; TH.length=0;
+  for(let c=3;c>=0;c--) for(let k=STRANDS-1;k>=0;k--){   /* charcoal on top, as in the logo's weave */
+    const p=document.createElementNS(NS,'path'); p.setAttribute('stroke',TCOL[c]); p.setAttribute('pathLength',1);
+    g.appendChild(p); TH.push({el:p,c,k});
+  }
+}
+/* centreline of each stripe of the A, as a function of u (0 = bottom left, .5 = apex, 1 = bottom right) */
+function target(c,u){
+  const x0=1992.8+42*c, ax=x0+307.1, ext=1.045;                 /* run the legs a touch past the baseline; the clip squares them off */
+  const t=u<.5?u*2:(1-u)*2, f=1-(1-t)*ext;
+  return [u<.5? ax-(ax-x0)*(1-f) : ax+(ax-x0)*(1-f), 24.67+(520-24.67)*(1-f)];
+}
+function play(){
+  reset(); scrollTo(0,0); document.documentElement.classList.add('locked'); layout();
+  const tg=document.getElementById('tagline'), solid=document.getElementById('solid'), thr=document.getElementById('threads'), clip=document.getElementById('thclipr');
+  if(reduce){document.getElementById('revr').setAttribute('height',2000);tg.setAttribute('opacity',1);document.getElementById('chrome').classList.add('on');document.documentElement.classList.remove('locked');return}
+  buildThreads();
+  /* the opening view is recomputed every frame: the page can open at a provisional size and settle a moment later */
+  let av=aView(); svg.setAttribute('viewBox',`${av.x} ${av.y} ${av.w} ${av.h}`);
+  let camT=-1;   /* pull-back progress, -1 until it starts */
+  thr.style.opacity=1; clip.setAttribute('height',2e6);
+  const PH=[0,1.7,3.15,.55,1.2,2.6,4.1,5.0];
+  const wander=(c,k,u,tau)=>{
+    const ph=PH[c]+k*.9, sp=1+k*.35;
+    const x=av.x+av.w*(-.12+1.24*u);
+    const y=ACY+av.h*(.17*Math.sin(Math.PI*2*((.75+.18*c)*u+.11*tau*sp)+ph)
+                     +.07*Math.sin(Math.PI*2*((2.1+.4*c+.3*k)*u-.19*tau)+ph*2)
+                     +(c-1.5)*.045+(k-1)*.03);
+    return [x,y];
+  };
+  const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  const T0=performance.now(), DRAW=1500, CONV=1450, LOCK=CONV+700+1100+3*120;   /* LOCK: when the last leg lands */
+  let swapped=false;
+  const frame=now=>{
+    const T=now-T0, tau=T/1000;
+    av=aView(); const pxu=innerWidth/av.w;
+    if(camT<0) svg.setAttribute('viewBox',`${av.x} ${av.y} ${av.w} ${av.h}`);
+    else {const e=camT<.5?2*camT*camT:1-Math.pow(-2*camT+2,2)/2; svg.setAttribute('viewBox',`${av.x+(base.x-av.x)*e} ${av.y+(base.y-av.y)*e} ${av.w+(base.w-av.w)*e} ${av.h+(base.h-av.h)*e}`)}
+    if(camT>=1) return;
+    if(!swapped){
+      for(const h of TH){
+        const {el,c,k}=h; let d='';
+        for(let i=0;i<NPT;i++){
+          const u=i/(NPT-1), w=wander(c,k,u,tau), tt=target(c,u);
+          const e=easeIO(clamp((T-(CONV+c*120+k*90+Math.abs(u-.5)*2*700))/1100));
+          d+=(i?'L':'M')+(w[0]+(tt[0]-w[0])*e).toFixed(1)+','+(w[1]+(tt[1]-w[1])*e).toFixed(1);
+        }
+        el.setAttribute('d',d);
+        /* draw on from the left, staggered by colour */
+        const head=easeIO(clamp((T-c*150-k*110)/DRAW));
+        el.style.strokeDasharray=head<1?`${head} 2`:'none';
+        if(k===0){ /* the main thread thickens into the stripe as it pulls taut */
+          const g=sm(clamp((T-(CONV+500+c*120))/1000));
+          el.setAttribute('stroke-width',(1.8/pxu+(26-1.8/pxu)*g).toFixed(2));
+        } else { /* companions stay hairline and fade as they merge into it */
+          el.setAttribute('stroke-width',(1/pxu).toFixed(2));
+          el.setAttribute('opacity',(.42*(1-sm(clamp((T-(CONV+500+c*120))/1400)))).toFixed(3));
+        }
+      }
+      if(T>LOCK-120) clip.setAttribute('height',1e6+520);             /* square the feet on the baseline */
+      if(T>=LOCK){
+        swapped=true;
+        /* hand over to the true logo shapes underneath (identical geometry), letters still hidden */
+        LET.forEach(p=>p.style.opacity=0);
+        document.getElementById('revr').setAttribute('y',-200); document.getElementById('revr').setAttribute('height',2000);
+        thr.animate([{opacity:1},{opacity:0}],{duration:220,fill:'forwards'});
+      }
+    }
+    raf=requestAnimationFrame(frame);
+  };
+  raf=requestAnimationFrame(frame);
+  /* the pull-back starts while the last legs are still landing, so the motion never stops dead */
+  later(LOCK-380,intro2);
+
+  function intro2(){
+    /* the view draws back to the whole word */
+    tween(1750,t=>{camT=t});
+    /* the other letters come into focus around it, gathering in toward the A */
+    const st=LET.map(()=>0), T1=performance.now()+480;
+    LET.forEach((p,i)=>p.setAttribute('filter',`url(#lb${i})`));
+    const go=now=>{
+      let done=true;
+      LET.forEach((p,i)=>{
+        const t=clamp((now-T1-LORD[i]*190)/1300), e=1-Math.pow(1-t,3);
+        if(t<1) done=false;
+        p.style.opacity=sm(clamp(t*1.6));
+        document.querySelector(`#lb${i} feGaussianBlur`).setAttribute('stdDeviation',(70*(1-e)).toFixed(2));
+        p.setAttribute('transform',`translate(${((LCX[i]-ACX)*.07*(1-e)).toFixed(1)} 0)`);
+      });
+      if(!done){raf=requestAnimationFrame(go);return}
+      LET.forEach(p=>{p.removeAttribute('filter');p.removeAttribute('transform');p.style.opacity=''});
+    };
+    raf=requestAnimationFrame(go);
+    later(1950,()=>tg.animate([{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'translateY(0)'}],{duration:1200,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}));
+    later(2450,()=>{document.getElementById('chrome').classList.add('on');document.documentElement.classList.remove('locked')});
+  }
+}
+
+/* scroll: fly through the A, then the six words */
+const ZOOM=5600, ACX=2362.9, ACY=260;   /* ZOOM: scroll distance of the turn; ACX/ACY: centre of the A */
+const clamp=v=>Math.max(0,Math.min(1,v));
+const sm=t=>t*t*(3-2*t);
+
+/* word field: a plexus — a loose band of nodes in depth, each wired to its nearest neighbours by hairlines,
+   with a few faint facets where three nodes close a triangle. The Need, Want and Desire words sit on some of the nodes.
+   Scrolling carries the camera forward through it. */
+const EXP=["Capability", "Competence", "Endorsement", "Designation", "Expertise", "Mastery", "Accomplishment", "Victory", "Attribution", "Acclaim", "Prestige", "Prominence", "Utility", "Efficacy", "Access", "Deployment", "Influence", "Impact", "Growth", "Improvement", "Advancement", "Elevation", "Expansion", "Transformation", "Order", "Certainty", "Predictability", "Reliability", "Solidity", "Permanence", "Safety", "Protection", "Assurance", "Reinforcement", "Sustainability", "Preservation", "Independence", "Agency", "Exemption", "Liberation", "Singularity", "Freedom", "Command", "Authority", "Loyalty", "Allegiance", "Supremacy", "Dominion", "Accuracy", "Precision", "Confirmation", "Verification", "Credibility", "Validity", "Virtue", "Conviction", "Acknowledgement", "Affirmation", "Authenticity", "Integrity", "Association", "Attachment", "Inclusion", "Affiliation", "Belonging", "Interdependence", "Alignment", "Attunement", "Agreement", "Resolution", "Balance", "Integration"];
+const field=document.getElementById('field');
+const fSvg=document.createElementNS('http://www.w3.org/2000/svg','svg'); fSvg.id='flines'; field.appendChild(fSvg);
+let seed=11; const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const NODES=[], N=200, SPAN_X=3200, SPAN_Y=1900, Z0=300, Z1=3200;
+for(let i=0;i<N;i++){
+  const z=Z0+rnd()*(Z1-Z0);
+  /* spread loosely over the whole window, with a little clustering so it doesn't look like a grid */
+  const cl=Math.floor(rnd()*9), cx=((cl%3)-1)*SPAN_X*.33, cy=(Math.floor(cl/3)-1)*SPAN_Y*.3;
+  const x=cx+(rnd()-.5)*SPAN_X*.55, y=cy+(rnd()-.5)*SPAN_Y*.5;
+  NODES.push({x,y,z,w:null,s:.6+rnd()*1.4});
+}
+/* spread the words over nodes across the depth */
+const order=NODES.map((n,i)=>i).sort((i,j)=>NODES[i].z-NODES[j].z);
+EXP.forEach((w,k)=>{NODES[order[Math.floor((k+.5)/EXP.length*N)]].w=w});
+/* wire each node to up to four near neighbours */
+const EDGES=[], deg=new Array(N).fill(0), key=new Set();
+for(let i=0;i<N;i++){
+  const near=[];
+  for(let j=0;j<N;j++) if(j!==i){const a=NODES[i],b=NODES[j],d=Math.hypot(a.x-b.x,a.y-b.y,(a.z-b.z)*.6); near.push([d,j])}
+  near.sort((u,v)=>u[0]-v[0]);
+  for(const [d,j] of near.slice(0,1+Math.floor(rnd()*3))){const k=i<j?i+'-'+j:j+'-'+i; if(!key.has(k)&&deg[i]<4&&deg[j]<4){key.add(k);EDGES.push([i,j]);deg[i]++;deg[j]++}}
+}
+const TRIS=[];
+for(const [i,j] of EDGES) for(let k=0;k<N;k++) if(k!==i&&k!==j&&key.has((i<k?i+'-'+k:k+'-'+i))&&key.has((j<k?j+'-'+k:k+'-'+j))&&i<j&&j<k&&rnd()<.12) TRIS.push([i,j,k]);
+function drawField(p){
+  const amt=reduce?0:sm(clamp((p-.06)/.14))*(1-sm(clamp((p-.26)/.12)));
+  field.style.opacity=amt; if(amt<=0) return;
+  const W=innerWidth,H=innerHeight, F=Math.max(W,H)*.62, cam=clamp((p-.04)/.36)*1500;
+  const P=NODES.map(n=>{const dz=n.z-cam; if(dz<40) return null; const k=F/dz;
+    /* fade in from the far end, fade out as a node reaches the camera */
+    const o=sm(clamp((Z1-n.z+cam*.2)/600))*sm(clamp((dz-40)/260));
+    return {x:W/2+n.x*k, y:H/2+n.y*k, k, o:o*clamp(1.4-dz/Z1)}});
+  let out='';
+  for(const [i,j,k] of TRIS){const a=P[i],b=P[j],c=P[k]; if(!a||!b||!c) continue;
+    const o=Math.min(a.o,b.o,c.o)*.03; if(o<.004) continue;
+    out+=`<path d="M${a.x.toFixed(1)},${a.y.toFixed(1)}L${b.x.toFixed(1)},${b.y.toFixed(1)}L${c.x.toFixed(1)},${c.y.toFixed(1)}Z" fill="#2F2F2F" opacity="${o.toFixed(3)}"/>`}
+  for(const [i,j] of EDGES){const a=P[i],b=P[j]; if(!a||!b) continue;
+    const o=Math.min(a.o,b.o)*.34; if(o<.004) continue;
+    out+=`<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}" stroke="#2F2F2F" stroke-width="${Math.min(1.1,.35+.25*Math.max(a.k,b.k)).toFixed(2)}" opacity="${o.toFixed(3)}"/>`}
+  NODES.forEach((n,i)=>{const q=P[i]; if(!q||q.o<.01) return;
+    const r=Math.min(4.5,n.s*(.6+q.k*.9));
+    out+=`<circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${r.toFixed(2)}" fill="#2F2F2F" opacity="${(q.o*.85).toFixed(3)}"/>`;
+    if(n.w){const fs=Math.min(22,7+q.k*7);
+      out+=`<text x="${(q.x+r+fs*.45).toFixed(1)}" y="${q.y.toFixed(1)}" dominant-baseline="middle" font-family="'Red Hat Display',Inter,sans-serif" font-weight="400" font-size="${fs.toFixed(1)}" letter-spacing="${(fs*.2).toFixed(1)}" fill="#2F2F2F" opacity="${(q.o*.5).toFixed(3)}">${n.w.toUpperCase()}</text>`}
+  });
+  fSvg.innerHTML=out;
+}
+const LEAD=.85;   /* how far below centre the DEFINE copy starts, in screens */
+let wTarget=-LEAD,wCur=-LEAD,wSeed=false;
+/* six headlines hold their places on the left; copy rises up and off on the right (Intensive treatment) */
+const wH=[...document.querySelectorAll('#words h2')], wStack=document.querySelector('#words .stack');
+function wFrame(){
+  if(!wSeed){wCur=wTarget;wSeed=true}else{wCur+=(wTarget-wCur)*.14;if(Math.abs(wTarget-wCur)<.0008)wCur=wTarget}
+  const mob=innerWidth<=700, slot=mob?4.4:9.6, blkH=mob?44:78;
+  const hc=Math.max(0,wCur), act=Math.round(hc);
+  wH.forEach((h,i)=>{
+    const rv=clamp(hc-i+1), e=1-(1-rv)*(1-rv);
+    /* desktop: the list re-centres as it grows; phone: it hangs from the top, just under Replay */
+    const yv=(mob?i:(i-hc/2))*slot+(1-e)*slot*.6;
+    h.style.transform=mob?`translateY(${yv}vh)`:`translateY(calc(-50% + ${yv}vh))`; h.style.opacity=e;
+    h.classList.toggle('act',i===act);
+  });
+  fillAnchor(wCur);
+  if(mob){ /* phone: paragraphs keep their natural height with an even gap; centre the current one */
+    const bl=[...wStack.children], c=bl.map(b=>b.offsetTop+b.offsetHeight/2), u=innerHeight*.44;
+    const k=Math.max(0,Math.min(bl.length-1,Math.floor(wCur))), f=wCur-k;
+    const off=wCur<0?c[0]+wCur*u:(k<bl.length-1?c[k]+(c[k+1]-c[k])*f:c[k]+f*u);
+    wStack.style.transform=`translateY(${(-off).toFixed(1)}px)`;
+    /* a paragraph only shows once its own headline has arrived, so copy and headline stay in step */
+    bl.forEach((b,i)=>{b.style.opacity=i===0?1:sm(clamp((wCur-(i-1)-.45)/.4)).toFixed(3)});
+  } else wStack.style.transform=`translateY(calc(-${blkH/2}vh - ${wCur*blkH}vh))`;   /* starts LEAD screens low and rises */
+  requestAnimationFrame(wFrame);
+}
+requestAnimationFrame(wFrame);
+function aView(){ /* viewBox that puts the A at the centre, about two-thirds of the screen tall */
+  const W=innerWidth,H=innerHeight, ah=Math.min(.64*H,.92*W/1.48), sc=ah/520;
+  const w=W/sc, h=H/sc; return {x:ACX-w/2,y:ACY-h/2,w,h};
+}
+
+/* footer A: the four lines draw in when the footer arrives, then the colours pass from line to line in a slow wipe */
+const FCOL=['#F6F5F2','#7DB8D6','#E55934','#F2B950'], FS=[...document.querySelectorAll('#foot .fs')].sort((a,b)=>a.dataset.k-b.dataset.k);
+let fOn=false, fTimers=[], fStep=0;
+function footA(on){
+  if(on===fOn) return; fOn=on; fTimers.forEach(clearTimeout); fTimers=[];
+  FS.forEach(g=>g.querySelectorAll('.fb,.fw,.fk').forEach(p=>p.getAnimations().forEach(a=>a.cancel())));
+  if(!on){FS.forEach(g=>g.querySelectorAll('.fb,.fw,.fk').forEach(p=>p.style.strokeDasharray='0 1'));return}
+  fStep=0;
+  FS.forEach((g,k)=>{const b=g.querySelector('.fb'), kn=g.querySelector('.fk'); b.style.stroke=FCOL[k]; b.style.strokeDasharray='1 0'; kn.style.strokeDasharray='1 0';
+    if(!reduce) [b,kn].forEach(p=>p.animate([{strokeDasharray:'0 1'},{strokeDasharray:'1 0'}],{duration:1500,delay:300+k*220,easing:'cubic-bezier(.6,0,.2,1)',fill:'backwards'}))});
+  if(reduce) return;
+  const cycle=()=>{ fStep++;
+    FS.forEach((g,k)=>{const b=g.querySelector('.fb'), w=g.querySelector('.fw'), col=FCOL[(k+fStep)%4];
+      w.style.stroke=col; w.style.strokeDasharray='1 0';
+      const an=w.animate([{strokeDasharray:'0 1'},{strokeDasharray:'1 0'}],{duration:1700,delay:k*160,easing:'cubic-bezier(.6,0,.2,1)',fill:'backwards'});
+      an.onfinish=()=>{b.style.stroke=col; w.style.strokeDasharray='0 1'};
+    });
+    fTimers.push(setTimeout(cycle,4200));
+  };
+  fTimers.push(setTimeout(cycle,300+3*220+1500+2200));
+}
+function onScroll(){
+  if(!base) return;
+  const y=scrollY, p=clamp(y/ZOOM), av=aView();
+  /* 1 — FRAME breaks apart and the view settles on the A */
+  const f=sm(clamp(p/.22));
+  const v={x:base.x+(av.x-base.x)*f,y:base.y+(av.y-base.y)*f,w:base.w+(av.w-base.w)*f,h:base.h+(av.h-base.h)*f};
+  svg.setAttribute('viewBox',`${v.x} ${v.y} ${v.w} ${v.h}`);
+  document.getElementById('letters').style.opacity=1-clamp(p/.16);
+  document.getElementById('tagwrap').style.opacity=1-clamp(p/.08);
+  document.querySelector('.chev').style.opacity=1-clamp(p/.05);
+  /* 2 — the A turns a full revolution in depth; the room goes dark while it is edge-on */
+  const t=reduce?(p>.5?1:0):sm(clamp((p-.24)/.5)), deg=180*t;
+  const dark=deg>=90;
+  const S3=ZOOM+(4*CD-SLIDE+.2)*innerHeight, r3=clamp((y-S3)/(3.6*innerHeight));   /* section 3 progress; THE FUTURE gets the same hold as the other cards before it */
+  document.documentElement.classList.toggle('dark',dark&&r3<.06);
+  document.getElementById('a0').setAttribute('fill',dark?'#F6F5F2':'#2F2F2F');
+  /* the flat logo A hands over to a solid, extruded A for the turn */
+  const hand=clamp((p-.76)/.14), solidOn=p>=.22;
+  svg.style.opacity=solidOn?0:1;
+  if(solidOn){ if(hand>0) settleA3(sm(hand)); else drawA3(deg,1+.14*Math.sin(t*Math.PI),dark); }
+  a3w.style.opacity=solidOn&&hand<1?1:0;   /* the solid A settles into the outline (below), then hands over */
+  /* 3 — the thin anchored A takes over, and the copy arrives */
+  const an=document.getElementById('anchor');
+  an.setAttribute('viewBox',`${av.x} ${av.y} ${av.w} ${av.h}`); an.style.opacity=hand>=1?1:0;
+  const u=av.w/innerWidth; an.querySelectorAll('.ab').forEach(e=>e.setAttribute('stroke-width',1.5*u)); an.querySelectorAll('.af').forEach(e=>e.setAttribute('stroke-width',2*u));
+  drawField(p);
+  const words=document.getElementById('words'), cardsEl=document.getElementById('cards');
+  /* THE FUTURE evaporates: its copy and A soften, lift and fade while the light ground washes in over the gold */
+  /* the whole stack clarifies away: everything on it softens, lifts and fades while the light ground of the statement washes in */
+  S3IN=sm(clamp(r3/.24)); const ev=sm(clamp(r3/.2)), out3=S3IN>=1?0:1;
+  CARDS.forEach(cd=>{const ci=cd.querySelector('.cin');
+    ci.style.filter=ev>0?`blur(${(ev*20).toFixed(1)}px)`:'';
+    ci.style.transform=ev>0?`translateY(${(-ev*5).toFixed(2)}vh) scale(${(1+ev*.05).toFixed(4)})`:'';
+    ci.style.opacity=(1-ev).toFixed(3)});
+  const cin=clamp((p-.86)/.14);
+  cardsEl.style.opacity=cin*out3; cardsEl.style.pointerEvents=cin>.9&&out3>.5?'auto':'none';
+  an.style.opacity=(hand>=1?1:0)*out3*(1-cin);
+  drawCards((y-ZOOM)/innerHeight, cin);
+  /* Replay and Connect step aside once the visitor is past the opening */
+  const pastHero=y>40; document.getElementById('replay').style.opacity=pastHero?0:''; document.getElementById('replay').style.pointerEvents=pastHero?'none':'';
+  drawS3(r3);
+  const fr=sm(clamp((y-S3-3.65*innerHeight)/(.9*innerHeight)));   /* footer rises over the light ground */
+  foot.style.transform=`translateY(${((1-fr)*100).toFixed(2)}%)`; foot.style.pointerEvents=fr>.9?'auto':'none'; footA(fr>.75?true:fr<.2?false:fOn);
+  document.querySelector('.chrome').style.opacity=pastHero?0:''; document.querySelector('.chrome').style.pointerEvents=pastHero?'none':'';
+  words.style.pointerEvents=p>=1?'auto':'none';
+  const q=(y-ZOOM)/innerHeight-LEAD;
+  wTarget=Math.max(-LEAD,Math.min(3,q));
+  fTarget=Math.pow(clamp((q+LEAD)/(3.25+LEAD)),1.15);   /* colour starts as THE MODEL arrives and completes during THE FUTURE */
+}
+const CARDS=[...document.querySelectorAll('.card')], CD=3.2, SLIDE=1.15;   /* screens per card; the last SLIDE of them is the hand-off, the rest is a hold for reading */
+
+/* split each card's kicker, headline and paragraph into its rendered lines, so they can rise one after another */
+function splitCardLines(){
+  CARDS.forEach(card=>{
+    let n=0; card._hw=null;
+    card.querySelectorAll('.ck,h2,.cp').forEach(el=>{
+      if(!el.dataset.src) el.dataset.src=el.textContent.trim();
+      /* break points: after spaces and after em dashes, which the browser also wraps at */
+      el.innerHTML=el.dataset.src.split(/(?<=\s)|(?<=\u2014)|(?<=-)/).map(w=>`<span class="wd">${w}</span>`).join('');
+      const lines=[]; let top=null;
+      el.querySelectorAll('.wd').forEach(w=>{if(w.offsetTop!==top){lines.push([]);top=w.offsetTop} lines[lines.length-1].push(w.textContent)});
+      const gap=el.classList.contains('cp')?.13:.16, start=el.classList.contains('cp')?.45:0;
+      if(el.classList.contains('cp')){   /* the paragraph waits as a pale ghost and is read in, word by word, as the visitor scrolls */
+        el.innerHTML=el.dataset.src.split(/(?<=\s)/).map(w=>`<span class="hw">${w}</span>`).join(''); return}
+      el.innerHTML=lines.map((l,k)=>`<span class="ln"><span class="li" style="transition-delay:${(start+(el.classList.contains('cp')?k:n++)*gap).toFixed(2)}s">${l.join('').trim()}</span></span>`).join('');
+    });
+  });
+}
+function readCards(c){
+  CARDS.forEach((el,i)=>{
+    const ws=el._hw||(el._hw=[...el.querySelectorAll('.hw')]); if(!ws.length) return;
+    const q=clamp((c-i*CD+.1)/(CD-SLIDE-.15)), N=ws.length, F=4;
+    ws.forEach((w,j)=>{const v=sm(clamp((q*(N+F)-j)/F)), o=(.2+.8*v).toFixed(3); if(w._o!==o){w._o=o;w.style.opacity=o}});
+  });
+}
+function revealCards(ent,cin){
+  CARDS.forEach((el,i)=>{const v=i===0?cin:ent[i], on=el.classList.contains('rv');
+    if(!on&&v>.3) el.classList.add('rv'); else if(on&&v<.15) el.classList.remove('rv')});
+}
+let S3IN=0;
+function drawCards(c,cin){
+  const ent=CARDS.map((_,i)=>i===0?1:sm(clamp((c-((i-1)*CD+CD-SLIDE))/SLIDE)));   /* how far card i has slid in */
+  const H=innerHeight, HH=CARDS[0].querySelector('.chead').offsetHeight;            /* full headline block */
+  const TABc=innerWidth<=700?58:Math.min(84,H*.095), ts=TABc/HH;                   /* a covered card keeps a slim tab */
+  CARDS.forEach((el,i)=>{
+    const e=ent[i], over=i<3?ent[i+1]:0, rest=i*TABc;   /* rest: just under the tabs of the cards before it */
+    el.style.height=(H-rest)+'px';
+    el.style.setProperty('--avail',(H-rest-HH)+'px');
+    el.style.setProperty('--txt',el.querySelector('.ctext').offsetHeight+'px');
+    el.style.transform=`translateY(${(rest+(1-e)*(H-rest)).toFixed(1)}px)`;
+    el.style.borderRadius='0';
+    el.querySelector('.dim').style.opacity=(over*.12).toFixed(3);
+    el.querySelector('.chead').style.transform=over>0?`scale(${(1-(1-ts)*sm(over)).toFixed(4)})`:'';
+    /* this card's A: the lines of earlier cards are already built; its own line draws in as it lands */
+    const own=i===0?clamp((cin-.3)/.7):clamp((c-((i-1)*CD+CD-SLIDE)-.5*SLIDE)/(.6*SLIDE));
+    el.querySelectorAll('.sl path').forEach((l,j)=>l.style.strokeDasharray=`${j<i?1:j===i?sm(own):0} 1`);
+  });
+  revealCards(ent,cin); readCards(c);
+}
+/* section 3: each word moves from pale and blurred, through the orange of the A, to charcoal as it lands */
+const foot=document.getElementById('foot'), s3=document.getElementById('s3'), S3W=[...document.querySelectorAll('#s3t .w')];
+const mixC=(a,b,t)=>{const h=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16)),A=h(a),B=h(b);return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'};
+function drawS3(r){
+  s3.style.opacity=S3IN.toFixed(3); s3.style.pointerEvents=r>.3?'auto':'none';
+  const ST=[.33,.41,.49,.68,.76];   /* a pause after YOU, while it leans into italic */
+  S3W.forEach((w,i)=>{const e=clamp((r-ST[i])/.14), k=sm(e);
+    w.style.opacity=(.14+.86*k).toFixed(3);
+    w.style.filter=k<1?`blur(${((1-k)*12).toFixed(1)}px)`:'none';
+    const lean=i===2?sm(clamp((r-.6)/.07)):0;   /* YOU slants once it has landed */
+    w.style.transform=`translateY(${((1-k)*.22).toFixed(3)}em) skewX(${(-11*lean).toFixed(2)}deg)`;
+    w.style.color=e<.55?mixC('#D9D5CC','#E55934',sm(e/.55)):mixC('#E55934','#2F2F2F',sm((e-.55)/.45));
+  });
+}
+/* each section fills more of the A's four lines with colour, outer lines trailing slightly */
+const AF=[...document.querySelectorAll('#anchor .af')];
+let fTarget=0,fCur=0;
+function fillAnchor(){fCur+=(fTarget-fCur)*.14; AF.forEach((l,i)=>l.style.strokeDasharray=`${clamp(fCur*1.09-i*.03)} 1`)}
+/* extruded A: a front face, a back face and thin side slices between them */
+const a3=document.getElementById('a3'), a3w=document.getElementById('a3wrap');
+const AP=[
+ ['M2299.90,0.00 L2622.30,520.00 L2591.71,520.00 L2299.90,49.34 L2008.09,520.00 L1977.50,520.00 Z','var(--c0)','var(--s0)',''],
+ ['M2341.90,0.00 L2664.30,520.00 L2633.71,520.00 L2341.90,49.34 L2050.09,520.00 L2019.50,520.00 Z','#7DB8D6','#557f95','m1'],
+ ['M2383.90,0.00 L2706.30,520.00 L2675.71,520.00 L2383.90,49.34 L2092.09,520.00 L2061.50,520.00 Z','#E55934','#a43f24','m2'],
+ ['M2425.90,0.00 L2748.30,520.00 L2717.71,520.00 L2425.90,49.34 L2134.09,520.00 L2103.50,520.00 Z','#F2B950','#b08537','m3']];
+/* front face keeps the logo's woven gaps; the back face is solid, stacked in reverse (seen from behind, the gold line is nearest),
+   so no gaps open onto the side walls once the A has turned */
+/* The turning A is drawn by hand: each of the four lines is a solid slab (front face, back face, side walls),
+   stacked front to back — charcoal nearest, gold furthest — the way they weave in the logo. Every frame the slabs
+   are rotated, put in perspective and painted far-to-near into one flat SVG. No browser 3D layers, so no seams. */
+const A3P=AP.map(([d,c,side])=>({pts:d.match(/[\d.]+,[\d.]+/g).map(q=>q.split(',').map(Number)),c,side}));
+const A3CX=1977.5+770.8/2, A3CY=260;
+const SETTLE=[['#F6F5F2'],['#7DB8D6'],['#E55934'],['#F2B950']];
+const mixHex=(a,b,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)), A=p(a), B=p(b);return 'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'};
+function settleA3(e){
+  const W=innerWidth,H=innerHeight, ah=Math.min(.64*H,.92*W/1.48), sc=ah/520;
+  const toX=x=>W/2+(x-ACX)*sc, toY=y=>H/2+(y-ACY)*sc;
+  const wide=26*sc, thin=1.5, w=wide+(thin-wide)*e;      /* full line weight down to the outline's hairline */
+  const op=1+(.12-1)*e;                                    /* full strength down to the outline's faint white */
+  let out='';
+  for(let i=0;i<4;i++){const o=42*i;   /* gold drawn last: from behind it is the nearest line, as at the end of the turn */
+    const d=`M${toX(1992.8+o)},${toY(520)}L${toX(2299.9+o)},${toY(24.7)}L${toX(2607+o)},${toY(520)}`;
+    out+=`<path d="${d}" fill="none" stroke="${mixHex(SETTLE[i][0],'#F6F5F2',e)}" stroke-width="${w.toFixed(2)}" stroke-linejoin="miter" stroke-miterlimit="10" opacity="${op.toFixed(3)}"/>`}
+  a3.innerHTML=out;
+}
+function drawA3(deg,scale,dark){
+  const W=innerWidth,H=innerHeight, ah=Math.min(.64*H,.92*W/1.48), sc=ah/520*scale;
+  const depth=Math.max(18,770.8*sc*.06), step=depth/4, t=step*.86, P=1600;
+  const th=deg*Math.PI/180, cs=Math.cos(th), sn=Math.sin(th);
+  const ox=W/2+(A3CX-ACX)*sc*0, oy=H/2;  /* the A's centre sits at the screen centre */
+  const proj=(x,y,z)=>{const X=x*cs+z*sn, Z=-x*sn+z*cs, k=P/(P-Z); return [ox+X*k, oy+y*k, Z]};
+  const bg=dark?'#2F2F2F':'#F6F5F2';
+  const polys=[];
+  A3P.forEach((ln,k)=>{
+    const face=k===0?(dark?'#F6F5F2':'#2F2F2F'):ln.c, side=k===0?(dark?'#a9a8a4':'#1c1c1c'):ln.side;
+    const zf=depth/2-k*step, zb=zf-t;
+    const mir=deg>90?-1:1;   /* swapped while edge-on (invisible), so the A ends the turn reading the right way round */
+    const loc=ln.pts.map(([x,y])=>[mir*(x-A3CX)*sc,(y-A3CY)*sc]);
+    const F=loc.map(([x,y])=>proj(x,y,zf)), B=loc.map(([x,y])=>proj(x,y,zb));
+    const items=[];
+    items.push({p:F,z:F.reduce((a,q)=>a+q[2],0)/F.length,fill:face,front:true});
+    items.push({p:B,z:B.reduce((a,q)=>a+q[2],0)/B.length,fill:face});
+    for(let i=0;i<loc.length;i++){const j=(i+1)%loc.length, q=[F[i],F[j],B[j],B[i]];
+      items.push({p:q,z:(q[0][2]+q[1][2]+q[2][2]+q[3][2])/4,fill:side,wall:true})}
+    const zc=items[0].z+items[1].z;   /* slab depth, for ordering the four lines */
+    polys.push({zc,items});
+  });
+  /* far lines first; inside a line: far face, walls far to near, near face */
+  polys.sort((a,b)=>a.zc-b.zc);
+  const halo=clamp((cs-.82)/.18)*18.42*sc;   /* the logo's thin gaps, only while the A is close to facing you */
+  let out='';
+  for(const L of polys){
+    const faces=L.items.filter(i=>!i.wall).sort((a,b)=>a.z-b.z), walls=L.items.filter(i=>i.wall).sort((a,b)=>a.z-b.z);
+    const P2=it=>'M'+it.p.map(q=>q[0].toFixed(1)+','+q[1].toFixed(1)).join('L')+'Z';
+    const near=faces[1];
+    out+=`<path d="${P2(faces[0])}" fill="${faces[0].fill}"/>`;
+    /* the gap ring goes down before this line's own walls, so it cuts the lines behind but never the line's own sides */
+    if(near.front&&halo>.3) out+=`<path d="${P2(near)}" fill="none" stroke="${bg}" stroke-width="${halo.toFixed(1)}" stroke-linejoin="round"/>`;
+    for(const w of walls) out+=`<path d="${P2(w)}" fill="${w.fill}" stroke="${w.fill}" stroke-width=".6"/>`;
+    out+=`<path d="${P2(near)}" fill="${near.fill}"/>`;
+  }
+  a3.innerHTML=out;
+}
+
+addEventListener('scroll',onScroll,{passive:true});
+document.getElementById('replay').addEventListener('click',play);
+let rt; addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{splitCardLines();layout()},120)});
+(document.fonts?document.fonts.ready:Promise.resolve()).then(splitCardLines);
+document.fonts?.ready.then(play); if(!document.fonts) play();
+}
+</script>
+</body></html>

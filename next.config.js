@@ -10,6 +10,13 @@ const nextConfig = {
         ],
       },
       {
+        // the previous homepage, kept reachable for reference but out of search results
+        source: '/home-v1',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
+      {
         source: '/companion/:path*',
         headers: [
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
@@ -17,6 +24,14 @@ const nextConfig = {
         ],
       },
     ]
+  },
+  // The homepage is the standalone page in public/home.html
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: '/', destination: '/home.html' },
+      ],
+    }
   },
   async redirects() {
     return [
