@@ -53,7 +53,7 @@ body{font:16px/1.5 Inter,"Helvetica Neue",Arial,sans-serif}
 /* section 3: on the light ground, the statement resolves word by word out of a blur; a colour wave runs through each word as it lands,
    and YOU is underscored by the A's four lines */
 #s3{position:fixed;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 7vw;background:#F6F5F2;opacity:0;pointer-events:none}
-#s3t{margin:0;font:500 clamp(48px,8.4vw,158px)/.98 'Red Hat Display',Inter,sans-serif;letter-spacing:-.03em;color:#2F2F2F}
+#s3t{text-transform:uppercase;margin:0;font:500 clamp(48px,8.4vw,158px)/.98 'Red Hat Display',Inter,sans-serif;letter-spacing:-.01em;color:#2F2F2F}
 #s3t .w{display:inline-block;will-change:filter,transform,opacity}
 #s3t .you{position:relative;transform-origin:50% 80%}
 #s3t br.mb{display:none}
@@ -75,6 +75,18 @@ body{font:16px/1.5 Inter,"Helvetica Neue",Arial,sans-serif}
 #foot .fcl,#foot .fcr{display:flex;flex-direction:column}#foot .fcr{text-align:right}
 #foot .frule{grid-column:1/-1;grid-row:3;height:1px;background:rgba(246,245,242,.28);margin-bottom:clamp(22px,3.4vh,40px)}
 #foot .flogo{grid-column:1/-1;grid-row:4;display:block;width:100%;height:auto}
+/* desktop: everything to act on stacks down the left — headline, button, then email, phone and address — and the A holds the right */
+@media(min-width:768px){
+ #foot h2{text-transform:uppercase;letter-spacing:.005em;max-width:none;font-size:clamp(40px,min(5.2vw,9.5vh),100px)}
+ #foot{padding-top:clamp(48px,9vh,140px);grid-template-rows:auto auto 1fr auto auto}
+ #foot .frule{grid-row:4}#foot .flogo{grid-row:5}
+ #foot .fa{grid-row:1/4!important}
+ #foot .fhead{grid-row:1}
+ #foot .fc{grid-column:1;grid-row:3;flex-direction:column;align-items:flex-start;gap:0;margin-top:clamp(28px,6vh,72px);align-self:end}   /* one even block of four lines */
+ #foot .fcr{text-align:left}
+ #foot .fa{grid-column:2;grid-row:1/3;align-self:center;justify-self:center;height:min(44vh,100%)}
+}
+#foot h2{text-transform:uppercase}
 @media(max-width:767px){
  #foot{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto auto;padding:clamp(56px,9vh,96px) 6vw 6vw}
  #foot h2{font-size:12.6vw;max-width:none}
@@ -198,7 +210,7 @@ a.cta,a.fbtn{text-decoration:none;box-sizing:border-box}a.cta{display:inline-fle
  <div class="chead"><p class="ck">The</p><h2>PROCESS</h2></div><div class="ctext"><p class="cp">The work begins by mapping the core factors that drive how you perceive situations, make decisions, confront obstacles, and engage with others. From there, the focus shifts to real-world application—distilling the findings into a practical resource for addressing the choices, challenges, and priorities that matter most.</p></div>
  <svg class="ca" viewBox="1960 0 820 540" aria-hidden="true"><g class="gh" fill="none" stroke="#2F2F2F" stroke-width="2" vector-effect="non-scaling-stroke" opacity=".28"><path d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g><g class="sl" fill="none" stroke="#2F2F2F" stroke-width="12" stroke-linejoin="miter" stroke-linecap="butt"><path pathLength="1" d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path pathLength="1" d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path pathLength="1" d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path pathLength="1" d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g></svg>
 </div><div class="dim"></div></article><article class="card" style="--bg:#F2B950;--ink:#2F2F2F"><div class="cin">
- <div class="chead"><p class="ck">The</p><h2>FUTURE</h2></div><div class="ctext"><p class="cp">FRAME is an adaptive system that evolves alongside the individuals and organizations it serves. Engineered with the option of native AI integration, it extends beyond the limits of a fixed model, becoming increasingly valuable as circumstances shift, roles transform, and new technologies emerge.</p></div>
+ <div class="chead"><p class="ck">The</p><h2>OUTCOME</h2></div><div class="ctext"><p class="cp">FRAME is an adaptive system that evolves alongside the individuals and organizations it serves. Engineered with the option of native AI integration, it extends beyond the limits of a fixed model, becoming increasingly valuable as circumstances shift, roles transform, and new technologies emerge.</p></div>
  <svg class="ca" viewBox="1960 0 820 540" aria-hidden="true"><g class="gh" fill="none" stroke="#2F2F2F" stroke-width="2" vector-effect="non-scaling-stroke" opacity=".28"><path d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g><g class="sl" fill="none" stroke="#2F2F2F" stroke-width="12" stroke-linejoin="miter" stroke-linecap="butt"><path pathLength="1" d="M1992.8,520 L2299.9,24.7 L2607.0,520"/><path pathLength="1" d="M2034.8,520 L2341.9,24.7 L2649.0,520"/><path pathLength="1" d="M2076.8,520 L2383.9,24.7 L2691.0,520"/><path pathLength="1" d="M2118.8,520 L2425.9,24.7 L2733.0,520"/></g></svg>
 </div><div class="dim"></div></article></section>
 <section id="words" style="display:none" aria-label="About FRAME"><div class="col l"><h2>THE MODEL</h2><h2>THE APPROACH</h2><h2>THE PROCESS</h2><h2>THE FUTURE</h2></div><div class="col r"><div class="stack"><div class="blk"><p>FRAME is an applied model of human motivation—a tool for navigating work, life, and relationships with greater clarity and insight. It looks beyond behavior, skills, and strengths to reveal the underlying architecture shaping how you experience the world.</p></div><div class="blk"><p>Built for a broad range of contexts, FRAME can be implemented one-on-one and at scale. It has been relied on for nearly a decade in moments that demand more than instinct: what to choose, who to trust, how to lead, when to change, why groups succeed—or don’t—and where to aim when the path is unclear.</p></div><div class="blk"><p>The work begins by mapping the core factors that drive how you perceive situations, make decisions, confront obstacles, and engage with others. From there, the focus shifts to real-world application—distilling the findings into a practical resource for addressing the choices, challenges, and priorities that matter most.</p></div><div class="blk"><p>FRAME is an adaptive system that evolves alongside the individuals and organizations it serves. Engineered with the option of native AI integration, it extends beyond the limits of a fixed model, becoming increasingly valuable as circumstances shift, roles transform, and new technologies emerge.</p></div></div></div></section>
@@ -574,7 +586,8 @@ function drawCards(c,cin){
     el.querySelector('.dim').style.opacity=(over*.12).toFixed(3);
     el.querySelector('.chead').style.transform=over>0?`scale(${(1-(1-ts)*sm(over)).toFixed(4)})`:'';
     /* this card's A: the lines of earlier cards are already built; its own line draws in as it lands */
-    const own=i===0?clamp((cin-.3)/.7):clamp((c-((i-1)*CD+CD-SLIDE)-.5*SLIDE)/(.6*SLIDE));
+    /* its own line fills in step with the paragraph being read in (same progress as readCards) */
+    const own=clamp((c-i*CD+.1)/(CD-SLIDE-.15));
     el.querySelectorAll('.sl path').forEach((l,j)=>l.style.strokeDasharray=`${j<i?1:j===i?sm(own):0} 1`);
   });
   revealCards(ent,cin); readCards(c);
