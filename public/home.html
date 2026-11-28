@@ -16,6 +16,8 @@
    and slides away; the new page slides in from the other side and grows back to full size. Same motion as the site's
    in-app transitions. Arriving at the home page reverses the direction. */
 addEventListener('pagereveal',function(e){var vt=e.viewTransition;if(!vt)return;
+window.__frameVT=vt.finished;   /* pages can wait for this before starting their own animations */
+
 if(matchMedia('(prefers-reduced-motion: reduce)').matches){vt.skipTransition();return}
 var rev=location.pathname==='/',ease='cubic-bezier(0.86, 0, 0.07, 1)',de=document.documentElement;
 vt.ready.then(function(){

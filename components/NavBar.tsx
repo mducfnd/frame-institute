@@ -88,7 +88,21 @@ export default function NavBar() {
           cursor: "pointer",
           border: "none",
           pointerEvents: hideNav ? "none" : "auto",
+          // On Connect the button matches the homepage's Connect button: a thin charcoal outline
+          ...(isConnectPage ? {
+            minHeight: "44px",
+            padding: "0.7rem 1.6rem",
+            background: "transparent",
+            color: "#2F2F2F",
+            border: "1px solid #2F2F2F",
+            fontFamily: "'Red Hat Display', Inter, sans-serif",
+            fontWeight: 400,
+            fontSize: "clamp(13px, 1.1vw, 16px)",
+            letterSpacing: "0.2em",
+            transition: "background .3s ease, color .3s ease",
+          } : {}),
         }}
+        className={isConnectPage ? "nav-home" : undefined}
       >
         {isConnectPage ? "Home" : "Connect"}
       </button>

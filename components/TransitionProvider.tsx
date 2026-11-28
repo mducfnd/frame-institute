@@ -29,6 +29,8 @@ export default function TransitionProvider({ children }: { children: ReactNode }
     const transition = (document as any).startViewTransition(() => {
       router.push(path);
     });
+    // pages can wait for this before starting their own entrance animations
+    (window as any).__frameVT = transition.finished;
 
     transition.ready.then(() => {
       // Old page: shrinks to 85%, then exits in the departure direction

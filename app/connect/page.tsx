@@ -75,7 +75,8 @@ const CONNECT_CSS = `
         .gx-a { margin-top: auto; padding-top: clamp(40px, 7vh, 90px); width: min(78%, 520px); height: auto; overflow: visible; }
         .gx-a .k { stroke: #F6F5F2; stroke-width: 54; }
         .gx-a .l { stroke-width: 15; }
-        .gx-a .k, .gx-a .l { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: gxDraw 1.5s cubic-bezier(.6,0,.2,1) forwards; }
+        .gx-a .k, .gx-a .l { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: gxDraw 1.5s cubic-bezier(.6,0,.2,1) forwards paused; }
+        .gx-a.go .k, .gx-a.go .l { animation-play-state: running; }   /* starts once the page transition has finished */
         .gx-a .w { stroke-width: 15; stroke-dasharray: 0 1; }
         @keyframes gxDraw { to { stroke-dashoffset: 0; } }
 
@@ -112,12 +113,17 @@ const CONNECT_CSS = `
         .gx-send:hover, .gx-send:focus-visible { background: transparent; color: #2F2F2F; outline: none; }
         .gx-send:disabled { opacity: .6; cursor: wait; }
         .gx-note { grid-column: 1 / -1; margin: 4px 0 0; font: 400 15px/1.5 'Red Hat Display', Inter, sans-serif; }
+        .nav-home:hover, .nav-home:focus-visible { background: #2F2F2F !important; color: #F6F5F2 !important; outline: none; }
+        .gx-contact-m { display: none; }
         .gx-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
         @media (max-width: 900px) {
           .gx { grid-template-columns: 1fr; row-gap: 44px; padding: 104px 6vw 48px; }
           .gx h1 { font-size: 11.4vw; }
-          .gx-a { width: min(70%, 340px); margin-top: 0; }
+          /* phones: straight from the intro into the form; contact details follow the form */
+          .gx-left .gx-rule, .gx-left .gx-contact, .gx-a { display: none; }
+          .gx-contact-m { display: flex; border-top: 1px solid #D9D5CC; padding-top: 28px; margin-top: -8px; }
+          .gx-left { min-height: 0; }
           .gx-card { padding: 26px 20px; border-radius: 20px; }
           .gx-form { grid-template-columns: 1fr; }
           .gx-chip span { padding: 0 16px; }
@@ -146,8 +152,15 @@ export default function ConnectPage() {
   /* once the A has drawn in, its colours pass one line over in a single wipe (as in the homepage footer), then rest */
   useEffect(() => {
     const svg = aRef.current;
-    if (!svg || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setTimeout(() => {
+    if (!svg) return;
+    let t = 0, live = true;
+    /* wait for the page transition (if one is playing) to finish, then draw */
+    const vt = (window as unknown as { __frameVT?: Promise<unknown> }).__frameVT;
+    Promise.resolve(vt).catch(() => {}).then(() => {
+      if (!live) return;
+      svg.classList.add("go");
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      t = window.setTimeout(() => {
       svg.querySelectorAll<SVGGElement>("g[data-k]").forEach((g) => {
         const k = Number(g.dataset.k), base = g.querySelector<SVGPathElement>(".l"), w = g.querySelector<SVGPathElement>(".w");
         if (!base || !w || !w.animate) return;
@@ -158,8 +171,9 @@ export default function ConnectPage() {
           { duration: 1700, delay: k * 160, easing: "cubic-bezier(.6,0,.2,1)", fill: "backwards" });
         an.onfinish = () => { base.setAttribute("stroke", col); w.style.strokeDasharray = "0 1"; };
       });
-    }, 0.25 * 1000 + 3 * 200 + 1500 + 900);
-    return () => window.clearTimeout(t);
+      }, 0.25 * 1000 + 3 * 200 + 1500 + 900);
+    });
+    return () => { live = false; window.clearTimeout(t); };
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -299,6 +313,13 @@ export default function ConnectPage() {
             )}
           </form>
         </section>
+
+        <address className="gx-contact gx-contact-m">
+          <a href="mailto:hello@frame.institute">hello@frame.institute</a>
+          <a href="tel:+12124705433">+1 212 470 5433</a>
+          <span>224 W 35th St Ste 500</span>
+          <span>New York, NY 10001</span>
+        </address>
       </main>
     </>
   );
