@@ -11,6 +11,13 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   const router = useRouter();
 
   const navigateTo = useCallback((path: string) => {
+    // The home page is a static page outside the app, so going there is a real page load;
+    // the cross-page transition in lib/pageTransitionScript.ts animates it.
+    if (path === "/") {
+      window.location.assign("/");
+      return;
+    }
+
     if (!("startViewTransition" in document) || prefersReducedMotion()) {
       router.push(path);
       return;
