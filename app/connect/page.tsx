@@ -57,65 +57,7 @@ const LEG = (c: number) => {
   return `M${(x0 - dx).toFixed(1)},${(520 + dy).toFixed(1)} L${ax.toFixed(1)},24.67 L${(x0 + 614.2 + dx).toFixed(1)},${(520 + dy).toFixed(1)}`;
 };
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
-  return (
-    <fieldset className="gx-field">
-      <legend>
-        {label}
-        {required && <span aria-hidden="true"> *</span>}
-      </legend>
-      {children}
-    </fieldset>
-  );
-}
-
-export default function ConnectPage() {
-  const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const aRef = useRef<SVGSVGElement>(null);
-
-  /* once the A has drawn in, its colours pass one line over in a single wipe (as in the homepage footer), then rest */
-  useEffect(() => {
-    const svg = aRef.current;
-    if (!svg || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = window.setTimeout(() => {
-      svg.querySelectorAll<SVGGElement>("g[data-k]").forEach((g) => {
-        const k = Number(g.dataset.k), base = g.querySelector<SVGPathElement>(".l"), w = g.querySelector<SVGPathElement>(".w");
-        if (!base || !w || !w.animate) return;
-        const col = COLS[(k + 1) % 4];
-        w.style.stroke = col;
-        w.style.strokeDasharray = "1 0";
-        const an = w.animate([{ strokeDasharray: "0 1" }, { strokeDasharray: "1 0" }],
-          { duration: 1700, delay: k * 160, easing: "cubic-bezier(.6,0,.2,1)", fill: "backwards" });
-        an.onfinish = () => { base.setAttribute("stroke", col); w.style.strokeDasharray = "0 1"; };
-      });
-    }, 0.25 * 1000 + 3 * 200 + 1500 + 900);
-    return () => window.clearTimeout(t);
-  }, []);
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setFormStatus("submitting");
-    const data = new FormData(e.currentTarget);
-    try {
-      const res = await fetch(FORMSPREE_URL, {
-        method: "POST",
-        body: data,
-        headers: { Accept: "application/json" },
-      });
-      setFormStatus(res.ok ? "success" : "error");
-    } catch {
-      setFormStatus("error");
-    }
-  };
-
-  return (
-    <>
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Red+Hat+Display:wght@300;400;500&display=swap"
-      />
-      <style suppressHydrationWarning>{`
+const CONNECT_CSS = `
         body { background: #F6F5F2; }
         .gx { min-height: 100vh; background: #F6F5F2; color: #2F2F2F; display: grid;
           grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 6vw;
@@ -183,7 +125,68 @@ export default function ConnectPage() {
         @media (prefers-reduced-motion: reduce) {
           .gx-a .k, .gx-a .l { animation: none; stroke-dashoffset: 0; }
         }
-      `}</style>
+      `;
+
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <fieldset className="gx-field">
+      <legend>
+        {label}
+        {required && <span aria-hidden="true"> *</span>}
+      </legend>
+      {children}
+    </fieldset>
+  );
+}
+
+export default function ConnectPage() {
+  const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const aRef = useRef<SVGSVGElement>(null);
+
+  /* once the A has drawn in, its colours pass one line over in a single wipe (as in the homepage footer), then rest */
+  useEffect(() => {
+    const svg = aRef.current;
+    if (!svg || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setTimeout(() => {
+      svg.querySelectorAll<SVGGElement>("g[data-k]").forEach((g) => {
+        const k = Number(g.dataset.k), base = g.querySelector<SVGPathElement>(".l"), w = g.querySelector<SVGPathElement>(".w");
+        if (!base || !w || !w.animate) return;
+        const col = COLS[(k + 1) % 4];
+        w.style.stroke = col;
+        w.style.strokeDasharray = "1 0";
+        const an = w.animate([{ strokeDasharray: "0 1" }, { strokeDasharray: "1 0" }],
+          { duration: 1700, delay: k * 160, easing: "cubic-bezier(.6,0,.2,1)", fill: "backwards" });
+        an.onfinish = () => { base.setAttribute("stroke", col); w.style.strokeDasharray = "0 1"; };
+      });
+    }, 0.25 * 1000 + 3 * 200 + 1500 + 900);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormStatus("submitting");
+    const data = new FormData(e.currentTarget);
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+      setFormStatus(res.ok ? "success" : "error");
+    } catch {
+      setFormStatus("error");
+    }
+  };
+
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Red+Hat+Display:wght@300;400;500&display=swap"
+      />
+      {/* raw CSS: passed as HTML so the quotes in the font names are not escaped */}
+      <style dangerouslySetInnerHTML={{ __html: CONNECT_CSS }} />
 
       <main className="gx">
         <section className="gx-left">
