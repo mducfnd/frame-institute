@@ -1,30 +1,98 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
-const FONT     = "'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif";
-const FONT_LT  = "'nitti-grotesk-light', 'Helvetica Neue', Helvetica, Arial, sans-serif";
-const FONT_SLT = "'nitti-grotesk-semilight', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+/* Connect: "Get in touch" and the contact details on the left, with the four-line A drawing in beneath them;
+   the form on the right in a bordered panel. Stacks on narrow screens. Submits to the same Formspree form as
+   before and shows the same thank-you line afterwards. */
 
-const SCROLL_TEXT = "CONNECT";
+const FORMSPREE_URL = "https://formspree.io/f/xvkgyajl";
 
-// The side-by-side layout needs ~1200px (530px strip + two columns);
-// anything narrower, including tablets, gets the stacked layout.
-const STACKED_BELOW = 1200;
-
-const INTERESTS = [
-  "Individual Engagement",
-  "Team or Organization Program",
-  "Speaking / Workshop",
-  "Request Information",
+const DESCRIBES = [
+  "CEO",
+  "Consultant",
+  "Hiring professional",
+  "Individual learner",
+  "Internal HR or training professional",
   "Other",
 ];
 
-export default function ConnectPage() {
-  const FORMSPREE_URL = "https://formspree.io/f/xvkgyajl";
-  const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+const INTERESTS = [
+  "Individual engagement",
+  "Team or organization program",
+  "Partnership",
+  "Request information",
+  "Other",
+];
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+const COUNTRIES = [
+  "United States", "Canada", "United Kingdom", "Australia", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
+  "Antigua and Barbuda", "Argentina", "Armenia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
+  "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei",
+  "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Central African Republic", "Chad", "Chile",
+  "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Côte d’Ivoire", "Croatia", "Cuba", "Cyprus", "Czechia",
+  "Democratic Republic of the Congo", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+  "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
+  "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti",
+  "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+  "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia",
+  "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia",
+  "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco",
+  "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand",
+  "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine",
+  "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Puerto Rico", "Qatar", "Romania",
+  "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
+  "São Tomé and Príncipe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia",
+  "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan",
+  "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo",
+  "Tonga", "Trinidad and Tobago", "Tunisia", "Türkiye", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine",
+  "United Arab Emirates", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia",
+  "Zimbabwe",
+];
+
+/* the A's four lines, on their centrelines in logo units, feet run a little past the baseline and clipped square */
+const COLS = ["#2F2F2F", "#7DB8D6", "#E55934", "#F2B950"];
+const LEG = (c: number) => {
+  const x0 = 1992.8 + 42 * c, ax = x0 + 307.1, dx = 307.1 * 0.06, dy = 495.3 * 0.06;
+  return `M${(x0 - dx).toFixed(1)},${(520 + dy).toFixed(1)} L${ax.toFixed(1)},24.67 L${(x0 + 614.2 + dx).toFixed(1)},${(520 + dy).toFixed(1)}`;
+};
+
+function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+  return (
+    <fieldset className="gx-field">
+      <legend>
+        {label}
+        {required && <span aria-hidden="true"> *</span>}
+      </legend>
+      {children}
+    </fieldset>
+  );
+}
+
+export default function ConnectPage() {
+  const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const aRef = useRef<SVGSVGElement>(null);
+
+  /* once the A has drawn in, its colours pass one line over in a single wipe (as in the homepage footer), then rest */
+  useEffect(() => {
+    const svg = aRef.current;
+    if (!svg || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = window.setTimeout(() => {
+      svg.querySelectorAll<SVGGElement>("g[data-k]").forEach((g) => {
+        const k = Number(g.dataset.k), base = g.querySelector<SVGPathElement>(".l"), w = g.querySelector<SVGPathElement>(".w");
+        if (!base || !w || !w.animate) return;
+        const col = COLS[(k + 1) % 4];
+        w.style.stroke = col;
+        w.style.strokeDasharray = "1 0";
+        const an = w.animate([{ strokeDasharray: "0 1" }, { strokeDasharray: "1 0" }],
+          { duration: 1700, delay: k * 160, easing: "cubic-bezier(.6,0,.2,1)", fill: "backwards" });
+        an.onfinish = () => { base.setAttribute("stroke", col); w.style.strokeDasharray = "0 1"; };
+      });
+    }, 0.25 * 1000 + 3 * 200 + 1500 + 900);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormStatus("submitting");
     const data = new FormData(e.currentTarget);
@@ -34,557 +102,201 @@ export default function ConnectPage() {
         body: data,
         headers: { Accept: "application/json" },
       });
-      if (res.ok) {
-        setFormStatus("success");
-      } else {
-        setFormStatus("error");
-      }
+      setFormStatus(res.ok ? "success" : "error");
     } catch {
       setFormStatus("error");
     }
   };
-  const reps = 8;
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < STACKED_BELOW);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   return (
     <>
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Red+Hat+Display:wght@300;400;500&display=swap"
+      />
       <style suppressHydrationWarning>{`
-        @keyframes scrollUp {
-          from { transform: translateY(0); }
-          to   { transform: translateY(-50%); }
-        }
-        @keyframes scrollLeft {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
+        body { background: #F6F5F2; }
+        .gx { min-height: 100vh; background: #F6F5F2; color: #2F2F2F; display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 6vw;
+          padding: clamp(110px, 15vh, 170px) 5vw clamp(40px, 6vh, 72px); box-sizing: border-box;
+          font-family: 'Red Hat Display', Inter, sans-serif; }
+        .gx-left { display: flex; flex-direction: column; min-height: 100%; }
+        .gx h1 { margin: 0; white-space: nowrap; font: 500 clamp(44px, 5.4vw, 100px)/.96 'Red Hat Display', Inter, sans-serif;
+          letter-spacing: -.005em; text-transform: uppercase; }
+        .gx-lede { margin: clamp(22px, 3.4vh, 36px) 0 0; max-width: 42ch; text-wrap: balance; color: #5C5A55;
+          font: 400 clamp(18px, 1.4vw, 23px)/1.5 'Red Hat Display', Inter, sans-serif; }
+        .gx-rule { width: min(100%, 560px); height: 1px; background: #D9D5CC; margin: clamp(34px, 6vh, 64px) 0 clamp(26px, 4.4vh, 44px); }
+        .gx-contact { display: flex; flex-direction: column; font: 400 clamp(16px, 1.2vw, 20px)/1.5 'Red Hat Display', Inter, sans-serif; font-style: normal; }
+        .gx-contact a { color: inherit; text-decoration: none; }
+        .gx-contact a:hover { text-decoration: underline; text-underline-offset: 3px; }
+        .gx-a { margin-top: auto; padding-top: clamp(40px, 7vh, 90px); width: min(78%, 520px); height: auto; overflow: visible; }
+        .gx-a .k { stroke: #F6F5F2; stroke-width: 54; }
+        .gx-a .l { stroke-width: 15; }
+        .gx-a .k, .gx-a .l { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: gxDraw 1.5s cubic-bezier(.6,0,.2,1) forwards; }
+        .gx-a .w { stroke-width: 15; stroke-dasharray: 0 1; }
+        @keyframes gxDraw { to { stroke-dashoffset: 0; } }
 
-        .frame-input {
-          width: 100%;
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid #c8c8c8;
-          outline: none;
-          padding: 0.65rem 0;
-          font-family: 'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-          font-weight: 300;
-          font-size: 17px;
-          letter-spacing: 0.03em;
-          color: #1a1a1a;
-          box-sizing: border-box;
-        }
-        .frame-input::placeholder { color: #aaa; }
-        .frame-input:focus { border-bottom-color: #1a1a1a; }
+        .gx-card { align-self: start; border: 1px solid #D9D5CC; border-radius: 24px; background: #FBFAF7;
+          padding: clamp(28px, 3.4vw, 52px); box-sizing: border-box; }
+        .gx-form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 16px; }
+        .gx-full { grid-column: 1 / -1; }
+        .gx-field { margin: 0; min-width: 0; border: 1px solid #D9D5CC; border-radius: 12px; padding: 0 16px 2px; transition: border-color .2s ease; }
+        .gx-field:focus-within { border-color: #2F2F2F; }
+        .gx-field legend { padding: 0 6px; margin-left: -6px; font: 500 11px/1 'Red Hat Display', Inter, sans-serif;
+          letter-spacing: .16em; text-transform: uppercase; color: #6B6862; }
+        .gx-field input, .gx-field select, .gx-field textarea { display: block; width: 100%; border: 0; outline: none; background: transparent;
+          padding: 8px 0 12px; font: 400 17px/1.4 Inter, sans-serif; color: #2F2F2F; border-radius: 0; box-sizing: border-box; }
+        .gx-field input::placeholder, .gx-field textarea::placeholder { color: #A9A59D; }
+        .gx-field textarea { resize: vertical; min-height: 96px; }
+        .gx-field select { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 22px;
+          background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236B6862' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right 2px center; }
+        .gx-field select:invalid, .gx-field select:has(option[value=""]:checked) { color: #A9A59D; }
+        .gx-field option { color: #2F2F2F; }
+        .gx-q { margin: 8px 0 0; padding: 0; border: 0; }
+        .gx-q legend { padding: 0; margin-bottom: 12px; font: 500 11px/1 'Red Hat Display', Inter, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #6B6862; }
+        /* two on the first row, three on the second */
+        .gx-chips { display: flex; flex-direction: column; gap: 10px; }
+        .gx-row { display: flex; flex-wrap: wrap; gap: 10px; }
+        .gx-chip input { position: absolute; opacity: 0; pointer-events: none; }
+        .gx-chip span { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1px solid #D9D5CC; border-radius: 999px;
+          font: 400 15px/1 Inter, sans-serif; color: #2F2F2F; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+        .gx-chip span:hover { border-color: #2F2F2F; }
+        .gx-chip input:checked + span { background: #2F2F2F; border-color: #2F2F2F; color: #F6F5F2; }
+        .gx-chip input:focus-visible + span { outline: 2px solid #7DB8D6; outline-offset: 2px; }
+        .gx-send { justify-self: start; margin-top: 10px; height: 56px; padding: 0 44px; border: 1.5px solid #2F2F2F; border-radius: 5px;
+          background: #2F2F2F; color: #F6F5F2; font: 400 14px 'Red Hat Display', Inter, sans-serif; letter-spacing: .2em; text-transform: uppercase;
+          cursor: pointer; transition: background .25s, color .25s; }
+        .gx-send:hover, .gx-send:focus-visible { background: transparent; color: #2F2F2F; outline: none; }
+        .gx-send:disabled { opacity: .6; cursor: wait; }
+        .gx-note { grid-column: 1 / -1; margin: 4px 0 0; font: 400 15px/1.5 'Red Hat Display', Inter, sans-serif; }
+        .gx-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
-        .frame-select {
-          width: 100%;
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid #c8c8c8;
-          outline: none;
-          padding: 0.65rem 0;
-          font-family: 'nitti-grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-          font-weight: 300;
-          font-size: 17px;
-          letter-spacing: 0.03em;
-          color: #aaa;
-          cursor: pointer;
-          appearance: none;
-          -webkit-appearance: none;
-          border-radius: 0;
-          box-sizing: border-box;
+        @media (max-width: 900px) {
+          .gx { grid-template-columns: 1fr; row-gap: 44px; padding: 104px 6vw 48px; }
+          .gx h1 { font-size: 11.4vw; }
+          .gx-a { width: min(70%, 340px); margin-top: 0; }
+          .gx-card { padding: 26px 20px; border-radius: 20px; }
+          .gx-form { grid-template-columns: 1fr; }
+          .gx-chip span { padding: 0 16px; }
         }
-        .frame-select:focus { border-bottom-color: #1a1a1a; color: #1a1a1a; }
-        .frame-select option { color: #1a1a1a; }
-
-        .select-wrap { position: relative; }
-        .select-wrap::after {
-          content: '';
-          position: absolute;
-          right: 4px;
-          top: 50%;
-          transform: translateY(-50%);
-          width: 0; height: 0;
-          border-left: 4px solid transparent;
-          border-right: 4px solid transparent;
-          border-top: 5px solid #aaa;
-          pointer-events: none;
+        @media (prefers-reduced-motion: reduce) {
+          .gx-a .k, .gx-a .l { animation: none; stroke-dashoffset: 0; }
         }
       `}</style>
 
-      {isMobile ? (
-        /* MOBILE LAYOUT */
-        <div
-          style={{
-            minHeight: "100vh",
-            background: "#ffffff",
-            display: "flex",
-            flexDirection: "column",
-            paddingTop: "72px",
-          }}
-        >
-          {/* Horizontal CONNECT marquee — hidden on mobile */}
-          <div
-            aria-hidden="true"
-            style={{
-              width: "100%",
-              height: "140px",
-              overflow: "hidden",
-              display: "none",
-            }}
-          >
-            <div
-              style={{
-                animation: "scrollLeft 40s linear infinite",
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                height: "100%",
-                width: "max-content",
-              }}
-            >
-              {Array.from({ length: reps * 2 }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    fontFamily: FONT,
-                    fontWeight: 500,
-                    fontSize: "120px",
-                    lineHeight: 1,
-                    letterSpacing: "-0.01em",
-                    color: "#c8c8c8",
-                    whiteSpace: "nowrap",
-                    paddingLeft: "2rem",
-                    paddingRight: "2rem",
-                    userSelect: "none",
-                  }}
-                >
-                  {SCROLL_TEXT}
-                </div>
+      <main className="gx">
+        <section className="gx-left">
+          <h1>Get in touch</h1>
+          <p className="gx-lede">
+            Tell us what you&apos;re working on, where you&apos;re stuck, or what you&apos;d like to explore. We&apos;ll follow up
+            with the best next step.
+          </p>
+          <div className="gx-rule" />
+          <address className="gx-contact">
+            <a href="mailto:hello@frame.institute">hello@frame.institute</a>
+            <a href="tel:+12124705433">+1 212 470 5433</a>
+            <span>224 W 35th St Ste 500</span>
+            <span>New York, NY 10001</span>
+          </address>
+          <svg ref={aRef} className="gx-a" viewBox="1950 -10 830 545" aria-hidden="true">
+            <defs>
+              <clipPath id="gxclip">
+                <rect x="1900" y="-100" width="1000" height="620" />
+              </clipPath>
+            </defs>
+            <g clipPath="url(#gxclip)" fill="none" strokeLinejoin="miter" strokeMiterlimit={8}>
+              {[3, 2, 1, 0].map((c) => (
+                <g key={c} data-k={c}>
+                  <path className="k" d={LEG(c)} pathLength={1} style={{ animationDelay: `${0.25 + c * 0.2}s` }} />
+                  <path className="l" d={LEG(c)} pathLength={1} stroke={COLS[c]} style={{ animationDelay: `${0.25 + c * 0.2}s` }} />
+                  <path className="w" d={LEG(c)} pathLength={1} />
+                </g>
               ))}
-            </div>
-          </div>
+            </g>
+          </svg>
+        </section>
 
-          {/* Content */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              padding: "2.5rem 1.5rem 3rem",
-              width: "100%",
-              maxWidth: "720px",
-              margin: "0 auto",
-            }}
-          >
-            {/* Let's Talk + contact info */}
-            <div style={{ marginBottom: "2.5rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                {/* Left: heading */}
-                <h2 style={{
-                  fontFamily: FONT,
-                  fontWeight: 400,
-                  fontSize: "36px",
-                  letterSpacing: "-0.01em",
-                  color: "#1a1a1a",
-                  margin: 0,
-                  lineHeight: 1.1,
-                  flexShrink: 0,
-                }}>
-                  Let&apos;s talk
-                </h2>
-
-                {/* Right: contact details */}
-                <div style={{ textAlign: "right" }}>
-                  {[
-                    { label: "Email",    lines: ["hello@frame.institute"] },
-                    { label: "Phone",    lines: ["+1 212 470 5433"] },
-                    { label: "Address",  lines: ["224 W 35th St Ste 500", "New York, NY 10001"] },
-                  ].map(({ label, lines }) => (
-                    <div key={label} style={{ marginBottom: "20px" }}>
-                      <div style={{
-                        fontFamily: FONT_SLT,
-                        fontWeight: 400,
-                        fontSize: "11px",
-                        letterSpacing: "0.18em",
-                        textTransform: "uppercase",
-                        color: "#999",
-                        marginBottom: "4px",
-                      }}>
-                        {label}
-                      </div>
-                      {lines.map((line, i) => (
-                        <div key={i} style={{
-                          fontFamily: FONT,
-                          fontWeight: 300,
-                          fontSize: "15px",
-                          letterSpacing: "0.02em",
-                          color: "#1a1a1a",
-                          lineHeight: 1.5,
-                        }}>
-                          {line}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
+        <section className="gx-card" aria-label="Contact form">
+          <form className="gx-form" onSubmit={handleSubmit}>
+            <div className="gx-hp" aria-hidden="true">
+              <label>
+                Leave this empty
+                <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" />
+              </label>
             </div>
 
-            {/* Drop a Line form */}
-            <div>
-              <h3 style={{
-                fontFamily: FONT,
-                fontWeight: 400,
-                fontSize: "25px",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "#1a1a1a",
-                margin: "0 0 20px 0",
-              }}>
-                Drop a Line
-              </h3>
-
-              <p style={{
-                fontFamily: FONT_SLT,
-                fontWeight: 400,
-                fontSize: "15px",
-                letterSpacing: "0.01em",
-                color: "#555",
-                lineHeight: 1.6,
-                margin: "0 0 36px 0",
-              }}>
-                Tell us what you&apos;re working toward, where you&apos;re stuck, or what you&apos;d like to explore. We&apos;ll follow up with the right next step.
-              </p>
-
-              <form
-                onSubmit={handleSubmit}
-                style={{ display: "flex", flexDirection: "column", gap: "24px" }}
-              >
-                {[
-                  { label: "Full Name", name: "full_name", type: "text", required: true, autoComplete: "name" },
-                  { label: "Email", name: "email", type: "email", required: true, autoComplete: "email" },
-                  { label: "Phone", name: "phone", type: "tel", required: false, autoComplete: "tel" },
-                  { label: "Company", name: "company", type: "text", required: false, autoComplete: "organization" },
-                  { label: "Title", name: "title", type: "text", required: false, autoComplete: "organization-title" },
-                ].map((field) => (
-                  <input
-                    key={field.name}
-                    className="frame-input"
-                    type={field.type}
-                    name={field.name}
-                    placeholder={field.label + (field.required ? "" : " (optional)")}
-                    required={field.required}
-                    autoComplete={field.autoComplete}
-                  />
+            <Field label="First name" required>
+              <input name="first_name" type="text" required autoComplete="given-name" placeholder="First name" />
+            </Field>
+            <Field label="Last name" required>
+              <input name="last_name" type="text" required autoComplete="family-name" placeholder="Last name" />
+            </Field>
+            <Field label="Email address" required>
+              <input name="email" type="email" required autoComplete="email" inputMode="email" placeholder="name@company.com" />
+            </Field>
+            <Field label="Phone number" required>
+              <input name="phone" type="tel" required autoComplete="tel" inputMode="tel" placeholder="Phone" />
+            </Field>
+            <Field label="Company / organization">
+              <input name="company" type="text" autoComplete="organization" placeholder="Optional" />
+            </Field>
+            <Field label="Country">
+              <select name="country" defaultValue="" autoComplete="country-name">
+                <option value="">Optional</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
                 ))}
-
-                <div className="select-wrap">
-                  <select className="frame-select" name="interest" defaultValue="">
-                    <option value="" disabled>What are you interested in?</option>
-                    {INTERESTS.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <textarea
-                  className="frame-input"
-                  placeholder="Message"
-                  name="message"
-                  required
-                  rows={4}
-                  style={{ resize: "none", paddingTop: "0.65rem" }}
-                />
-
-                <div>
-                  <button
-                    type="submit"
-                    disabled={formStatus === "submitting"}
-                    style={{
-                      marginTop: "12px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "0.65rem 2.4rem",
-                      background: "#1a1a1a",
-                      color: "#ffffff",
-                      border: "none",
-                      borderRadius: "5px",
-                      fontFamily: FONT_SLT,
-                      fontWeight: 400,
-                      fontSize: "12px",
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      cursor: formStatus === "submitting" ? "wait" : "pointer",
-                      opacity: formStatus === "submitting" ? 0.6 : 1,
-                    }}
-                  >
-                    {formStatus === "submitting" ? "Sending..." : "Send"}
-                  </button>
-                </div>
-              </form>
-                {formStatus === "success" && (
-                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#1a1a1a", marginTop: "8px", letterSpacing: "0.02em" }}>
-                    Thank you — we&apos;ll be in touch soon.
-                  </p>
-                )}
-                {formStatus === "error" && (
-                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#c00", marginTop: "8px", letterSpacing: "0.02em" }}>
-                    Something went wrong. Please try again or email us directly.
-                  </p>
-                )}
+              </select>
+            </Field>
+            <div className="gx-full">
+              <Field label="Which best describes you?" required>
+                <select name="describes_you" defaultValue="" required>
+                  <option value="" disabled>Select one</option>
+                  {DESCRIBES.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </Field>
             </div>
-          </div>
-        </div>
-      ) : (
-        /* DESKTOP LAYOUT */
-        <div
-          style={{
-            minHeight: "100vh",
-            background: "#ffffff",
-            display: "flex",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Scrolling CONNECT strip (fixed left) */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 240,
-              bottom: 0,
-              width: 280,
-              overflow: "hidden",
-              zIndex: 0,
-            }}
-          >
-            <div
-              style={{
-                animation: "scrollUp 120s linear infinite",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-end",
-              }}
-            >
-              {Array.from({ length: reps * 2 }).map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    writingMode: "vertical-rl",
-                    transform: "rotate(180deg)",
-                    fontFamily: FONT,
-                    fontWeight: 500,
-                    fontSize: "250px",
-                    lineHeight: 0.9,
-                    letterSpacing: "-0.01em",
-                    color: "#c8c8c8",
-                    whiteSpace: "nowrap",
-                    paddingTop: "2rem",
-                    paddingBottom: "2rem",
-                    userSelect: "none",
-                  }}
-                >
-                  {SCROLL_TEXT}
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* MAIN CONTENT */}
-          <div
-            style={{
-              marginLeft: "530px",
-              flex: 1,
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              paddingTop: "110px",
-              paddingBottom: "64px",
-              alignItems: "end",
-            }}
-          >
-            {/* Let's Talk + contact info */}
-            <div
-              style={{
-                paddingTop: 0,
-                paddingBottom: "calc(0.65rem + 10px)",
-                paddingLeft: 0,
-                paddingRight: "93px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-end",
-                alignItems: "flex-end",
-              }}
-            >
-              <div style={{ width: "240px" }}>
-                <h2 style={{
-                  fontFamily: FONT,
-                  fontWeight: 400,
-                  fontSize: "36px",
-                  letterSpacing: "-0.01em",
-                  color: "#1a1a1a",
-                  margin: "0 0 30px 0",
-                  lineHeight: 1.1,
-                }}>
-                  Let&apos;s talk
-                </h2>
-
-                {[
-                  { label: "Email",    lines: ["hello@frame.institute"] },
-                  { label: "Phone",    lines: ["+1 212 470 5433"] },
-                  { label: "Address",  lines: ["224 W 35th St Ste 500", "New York, NY 10001"] },
-                ].map(({ label, lines }) => (
-                  <div key={label} style={{ marginBottom: "32px" }}>
-                    <div style={{
-                      fontFamily: FONT_SLT,
-                      fontWeight: 400,
-                      fontSize: "12px",
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      color: "#999",
-                      marginBottom: "6px",
-                    }}>
-                      {label}
-                    </div>
-                    {lines.map((line, i) => (
-                      <div key={i} style={{
-                        fontFamily: FONT,
-                        fontWeight: 300,
-                        fontSize: "17px",
-                        letterSpacing: "0.02em",
-                        color: "#1a1a1a",
-                        lineHeight: 1.5,
-                      }}>
-                        {line}
-                      </div>
+            <fieldset className="gx-q gx-full">
+              <legend>What are you interested in? *</legend>
+              <div className="gx-chips">
+                {[INTERESTS.slice(0, 2), INTERESTS.slice(2)].map((row, r) => (
+                  <div className="gx-row" key={r}>
+                    {row.map((opt) => (
+                      <label className="gx-chip" key={opt}>
+                        <input type="radio" name="interest" value={opt} required={opt === INTERESTS[0]} />
+                        <span>{opt}</span>
+                      </label>
                     ))}
                   </div>
                 ))}
               </div>
+            </fieldset>
+
+            <div className="gx-full">
+              <Field label="Message">
+                <textarea name="message" rows={3} placeholder="Optional — anything you’d like us to know" />
+              </Field>
             </div>
 
-            {/* Drop a Line form */}
-            <div
-              style={{
-                paddingTop: 0,
-                paddingBottom: 0,
-                paddingLeft: "48px",
-                paddingRight: "40px",
-              }}
-            >
-              <h3 style={{
-                fontFamily: FONT,
-                fontWeight: 400,
-                fontSize: "25px",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-                color: "#1a1a1a",
-                margin: "0 0 20px 0",
-              }}>
-                Drop a Line
-              </h3>
+            <button className="gx-send" type="submit" disabled={formStatus === "submitting"}>
+              {formStatus === "submitting" ? "Sending…" : "Send"}
+            </button>
 
-              <p style={{
-                fontFamily: FONT_SLT,
-                fontWeight: 400,
-                fontSize: "15px",
-                letterSpacing: "0.01em",
-                color: "#555",
-                lineHeight: 1.6,
-                margin: "0 0 36px 0",
-              }}>
-                Tell us what you&apos;re working toward, where you&apos;re stuck, or what you&apos;d like to explore. We&apos;ll follow up with the right next step.
+            {formStatus === "success" && (
+              <p className="gx-note" role="status">Thank you — we&apos;ll be in touch soon.</p>
+            )}
+            {formStatus === "error" && (
+              <p className="gx-note" role="alert" style={{ color: "#B23B3B" }}>
+                Something went wrong. Please try again or email us directly.
               </p>
-
-              <form
-                onSubmit={handleSubmit}
-                style={{ display: "flex", flexDirection: "column", gap: "24px" }}
-              >
-                {[
-                  { label: "Full Name", name: "full_name", type: "text", required: true, autoComplete: "name" },
-                  { label: "Email", name: "email", type: "email", required: true, autoComplete: "email" },
-                  { label: "Phone", name: "phone", type: "tel", required: false, autoComplete: "tel" },
-                  { label: "Company", name: "company", type: "text", required: false, autoComplete: "organization" },
-                  { label: "Title", name: "title", type: "text", required: false, autoComplete: "organization-title" },
-                ].map((field) => (
-                  <input
-                    key={field.name}
-                    className="frame-input"
-                    type={field.type}
-                    name={field.name}
-                    placeholder={field.label + (field.required ? "" : " (optional)")}
-                    required={field.required}
-                    autoComplete={field.autoComplete}
-                  />
-                ))}
-
-                <div className="select-wrap">
-                  <select className="frame-select" name="interest" defaultValue="">
-                    <option value="" disabled>What are you interested in?</option>
-                    {INTERESTS.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <textarea
-                  className="frame-input"
-                  placeholder="Message"
-                  name="message"
-                  required
-                  rows={4}
-                  style={{ resize: "none", paddingTop: "0.65rem" }}
-                />
-
-                <div>
-                  <button
-                    type="submit"
-                    disabled={formStatus === "submitting"}
-                    style={{
-                      marginTop: "12px",
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "0.65rem 2.4rem",
-                      background: "#1a1a1a",
-                      color: "#ffffff",
-                      border: "none",
-                      borderRadius: "5px",
-                      fontFamily: FONT_SLT,
-                      fontWeight: 400,
-                      fontSize: "12px",
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      cursor: formStatus === "submitting" ? "wait" : "pointer",
-                      opacity: formStatus === "submitting" ? 0.6 : 1,
-                    }}
-                  >
-                    {formStatus === "submitting" ? "Sending..." : "Send"}
-                  </button>
-                </div>
-              </form>
-                {formStatus === "success" && (
-                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#1a1a1a", marginTop: "8px", letterSpacing: "0.02em" }}>
-                    Thank you — we&apos;ll be in touch soon.
-                  </p>
-                )}
-                {formStatus === "error" && (
-                  <p style={{ fontFamily: FONT_SLT, fontSize: "14px", color: "#c00", marginTop: "8px", letterSpacing: "0.02em" }}>
-                    Something went wrong. Please try again or email us directly.
-                  </p>
-                )}
-            </div>
-
-          </div>
-        </div>
-      )}
+            )}
+          </form>
+        </section>
+      </main>
     </>
   );
 }

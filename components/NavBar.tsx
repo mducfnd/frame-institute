@@ -53,7 +53,7 @@ export default function NavBar() {
     >
       {/* FRAME logo — clickable on connect page to go home */}
       <img
-        src="/assets/frame-logo-mono.svg"
+        src={isConnectPage ? "/assets/frame-logo-color.svg" : "/assets/frame-logo-mono.svg"}  /* Connect shows the homepage logo, A in colour */
         alt="FRAME"
         onClick={isConnectPage ? () => navigateTo("/") : undefined}
         style={{

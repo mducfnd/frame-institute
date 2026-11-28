@@ -24,7 +24,7 @@ de.animate([{transform:'translateY('+(rev?'-100%':'100%')+') scale(0.85)',offset
 });});
 </script>
 <meta name="description" content="FRAME is an applied model of human motivation. The architecture of human motivation.">
-<link rel="icon" href="/icon.png"><link rel="apple-touch-icon" href="/apple-icon.png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="icon" href="/icon.png" type="image/png"><link rel="apple-touch-icon" href="/apple-icon.png">
 <meta property="og:title" content="FRAME"><meta property="og:description" content="The architecture of human motivation">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Red+Hat+Display:wght@300;400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
@@ -290,7 +290,7 @@ function fade(el,to,ms){el.animate([{opacity:getComputedStyle(el).opacity},{opac
 
 function reset(){
   timers.forEach(clearTimeout); timers=[]; cancelAnimationFrame(raf);
-  document.getAnimations().forEach(a=>a.cancel());
+  document.getAnimations().forEach(a=>{if(!(a.effect&&a.effect.pseudoElement&&a.effect.pseudoElement.indexOf('view-transition')>=0)) a.cancel()});   /* leave the page transition running */
   document.getElementById('chrome').classList.remove('on'); svg.style.opacity=1; svg.style.transform=''; a3w.style.opacity=0; document.documentElement.classList.remove('dark');
   document.getElementById('revr').setAttribute('height',0);
   document.querySelectorAll('.fan').forEach(p=>{p.removeAttribute('transform');p.style.opacity=''});
