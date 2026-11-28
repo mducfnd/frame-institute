@@ -36,7 +36,8 @@ export default function NavBar() {
   return (
     <nav
       style={{
-        position: "fixed",
+        // On Connect the nav scrolls away with the page, so the headline never slides underneath it
+        position: isConnectPage ? "absolute" : "fixed",
         top: "1rem",
         left: 0,
         right: 0,
