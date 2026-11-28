@@ -121,8 +121,10 @@ const CONNECT_CSS = `
           .gx { grid-template-columns: 1fr; row-gap: 44px; padding: 104px 6vw 48px; }
           .gx h1 { font-size: 11.4vw; }
           /* phones: straight from the intro into the form; contact details follow the form */
-          .gx-left .gx-rule, .gx-left .gx-contact, .gx-a { display: none; }
-          .gx-contact-m { display: flex; border-top: 1px solid #D9D5CC; padding-top: 28px; margin-top: -8px; }
+          .gx-left .gx-rule, .gx-left .gx-contact, .gx-left .gx-a { display: none; }
+          .gx-contact-m { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; border-top: 1px solid #D9D5CC; padding-top: 28px; margin-top: -8px; }
+          .gx-contact-m .gx-contact { text-align: right; font-size: 15px; }
+          .gx-a-m { width: 38%; max-width: 160px; margin: 0; padding: 0; flex: none; }
           .gx-left { min-height: 0; }
           .gx-card { padding: 26px 20px; border-radius: 20px; }
           .gx-form { grid-template-columns: 1fr; }
@@ -132,6 +134,62 @@ const CONNECT_CSS = `
           .gx-a .k, .gx-a .l { animation: none; stroke-dashoffset: 0; }
         }
       `;
+
+/* The four-line A. It draws in, then its colours pass one line over in a single wipe (as in the homepage
+   footer), then rests. start="transition": once any page transition has finished (desktop, beside the intro).
+   start="view": once it scrolls into view (phones, under the form). Plays once. */
+function AMark({ className, start }: { className: string; start: "transition" | "view" }) {
+  const ref = useRef<SVGSVGElement>(null);
+  useEffect(() => {
+    const svg = ref.current;
+    if (!svg) return;
+    let t = 0, live = true, io: IntersectionObserver | null = null;
+    const play = () => {
+      if (!live || svg.classList.contains("go")) return;
+      svg.classList.add("go");
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      t = window.setTimeout(() => {
+        svg.querySelectorAll<SVGGElement>("g[data-k]").forEach((g) => {
+          const k = Number(g.dataset.k), base = g.querySelector<SVGPathElement>(".l"), w = g.querySelector<SVGPathElement>(".w");
+          if (!base || !w || !w.animate) return;
+          const col = COLS[(k + 1) % 4];
+          w.style.stroke = col;
+          w.style.strokeDasharray = "1 0";
+          const an = w.animate([{ strokeDasharray: "0 1" }, { strokeDasharray: "1 0" }],
+            { duration: 1700, delay: k * 160, easing: "cubic-bezier(.6,0,.2,1)", fill: "backwards" });
+          an.onfinish = () => { base.setAttribute("stroke", col); w.style.strokeDasharray = "0 1"; };
+        });
+      }, 0.25 * 1000 + 3 * 200 + 1500 + 900);
+    };
+    const vt = (window as unknown as { __frameVT?: Promise<unknown> }).__frameVT;
+    Promise.resolve(vt).catch(() => {}).then(() => {
+      if (!live) return;
+      if (start === "transition") { play(); return; }
+      io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io?.disconnect(); play(); } }, { threshold: 0.6 });
+      io.observe(svg);
+    });
+    return () => { live = false; window.clearTimeout(t); io?.disconnect(); };
+  }, [start]);
+  const id = `gxclip-${start}`;
+  return (
+    <svg ref={ref} className={className} viewBox="1950 -10 830 545" aria-hidden="true">
+      <defs>
+        <clipPath id={id}>
+          <rect x="1900" y="-100" width="1000" height="620" />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${id})`} fill="none" strokeLinejoin="miter" strokeMiterlimit={8}>
+        {[3, 2, 1, 0].map((c) => (
+          <g key={c} data-k={c}>
+            <path className="k" d={LEG(c)} pathLength={1} style={{ animationDelay: `${0.25 + c * 0.2}s` }} />
+            <path className="l" d={LEG(c)} pathLength={1} stroke={COLS[c]} style={{ animationDelay: `${0.25 + c * 0.2}s` }} />
+            <path className="w" d={LEG(c)} pathLength={1} />
+          </g>
+        ))}
+      </g>
+    </svg>
+  );
+}
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
@@ -147,34 +205,6 @@ function Field({ label, required, children }: { label: string; required?: boolea
 
 export default function ConnectPage() {
   const [formStatus, setFormStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  const aRef = useRef<SVGSVGElement>(null);
-
-  /* once the A has drawn in, its colours pass one line over in a single wipe (as in the homepage footer), then rest */
-  useEffect(() => {
-    const svg = aRef.current;
-    if (!svg) return;
-    let t = 0, live = true;
-    /* wait for the page transition (if one is playing) to finish, then draw */
-    const vt = (window as unknown as { __frameVT?: Promise<unknown> }).__frameVT;
-    Promise.resolve(vt).catch(() => {}).then(() => {
-      if (!live) return;
-      svg.classList.add("go");
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      t = window.setTimeout(() => {
-      svg.querySelectorAll<SVGGElement>("g[data-k]").forEach((g) => {
-        const k = Number(g.dataset.k), base = g.querySelector<SVGPathElement>(".l"), w = g.querySelector<SVGPathElement>(".w");
-        if (!base || !w || !w.animate) return;
-        const col = COLS[(k + 1) % 4];
-        w.style.stroke = col;
-        w.style.strokeDasharray = "1 0";
-        const an = w.animate([{ strokeDasharray: "0 1" }, { strokeDasharray: "1 0" }],
-          { duration: 1700, delay: k * 160, easing: "cubic-bezier(.6,0,.2,1)", fill: "backwards" });
-        an.onfinish = () => { base.setAttribute("stroke", col); w.style.strokeDasharray = "0 1"; };
-      });
-      }, 0.25 * 1000 + 3 * 200 + 1500 + 900);
-    });
-    return () => { live = false; window.clearTimeout(t); };
-  }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -216,22 +246,7 @@ export default function ConnectPage() {
             <span>224 W 35th St Ste 500</span>
             <span>New York, NY 10001</span>
           </address>
-          <svg ref={aRef} className="gx-a" viewBox="1950 -10 830 545" aria-hidden="true">
-            <defs>
-              <clipPath id="gxclip">
-                <rect x="1900" y="-100" width="1000" height="620" />
-              </clipPath>
-            </defs>
-            <g clipPath="url(#gxclip)" fill="none" strokeLinejoin="miter" strokeMiterlimit={8}>
-              {[3, 2, 1, 0].map((c) => (
-                <g key={c} data-k={c}>
-                  <path className="k" d={LEG(c)} pathLength={1} style={{ animationDelay: `${0.25 + c * 0.2}s` }} />
-                  <path className="l" d={LEG(c)} pathLength={1} stroke={COLS[c]} style={{ animationDelay: `${0.25 + c * 0.2}s` }} />
-                  <path className="w" d={LEG(c)} pathLength={1} />
-                </g>
-              ))}
-            </g>
-          </svg>
+          <AMark className="gx-a" start="transition" />
         </section>
 
         <section className="gx-card" aria-label="Contact form">
@@ -314,12 +329,15 @@ export default function ConnectPage() {
           </form>
         </section>
 
-        <address className="gx-contact gx-contact-m">
-          <a href="mailto:hello@frame.institute">hello@frame.institute</a>
-          <a href="tel:+12124705433">+1 212 470 5433</a>
-          <span>224 W 35th St Ste 500</span>
-          <span>New York, NY 10001</span>
-        </address>
+        <div className="gx-contact-m">
+          <AMark className="gx-a gx-a-m" start="view" />
+          <address className="gx-contact">
+            <a href="mailto:hello@frame.institute">hello@frame.institute</a>
+            <a href="tel:+12124705433">+1 212 470 5433</a>
+            <span>224 W 35th St Ste 500</span>
+            <span>New York, NY 10001</span>
+          </address>
+        </div>
       </main>
     </>
   );
